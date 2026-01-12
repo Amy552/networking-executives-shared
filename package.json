@@ -1,0 +1,57 @@
+{
+  "name": "@networking-executives/shared",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./schemas": {
+      "import": "./dist/schemas/index.js"
+    },
+    "./hooks": {
+      "import": "./dist/hooks/index.js"
+    },
+    "./services": {
+      "import": "./dist/services/index.js"
+    },
+    "./utils": {
+      "import": "./dist/utils/index.js"
+    },
+    "./components": {
+      "import": "./dist/components/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "yup": "^1.6.1"
+  },
+  "peerDependencies": {
+    "@tiptap/extension-link": "^3.15.3",
+    "@tiptap/extension-placeholder": "^3.15.3",
+    "@tiptap/react": "^3.15.3",
+    "@tiptap/starter-kit": "^3.15.3",
+    "browser-image-compression": "^2.0.2",
+    "firebase": "^11.6.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.1.0"
+  }
+}
