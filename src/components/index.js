@@ -1,13 +1,25 @@
 /**
- * Shared UI components for event management
+ * Shared UI Components for Event Management
  *
- * Phase 4 implementation includes:
- * - EventFormFields - Complete event form input collection
- * - LocationPicker - Address input with map integration
- * - DateTimePicker - Date/time inputs with timezone support
- * - RichTextEditor - Tiptap-based rich text editor
- * - ImageUploader - Image upload with compression
+ * @module @networking-executives/shared/components
  */
 
-// Placeholder exports - will be implemented in Phase 4
-export const COMPONENTS_PLACEHOLDER = "Phase 4: Components implementation pending";
+// Event Form Components
+export { EventForm, EventFormActions } from "./EventForm.jsx";
+
+// Date/Time Components
+export {
+  EventDateTimePicker,
+  EventDateTimeRange,
+  formatDateForStorage,
+  parseDateFromStorage,
+} from "./EventDateTimePicker.jsx";
+
+// Location Components
+export { LocationPicker, CityPicker } from "./LocationPicker.jsx";
+
+// Rich Text Editor
+export { RichTextEditor, stripHtml } from "./RichTextEditor.jsx";
+
+// Image Components
+export { ImageCropper, useImageCropper } from "./ImageCropper.jsx";

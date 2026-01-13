@@ -19,18 +19,18 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        "react",
-        "react-dom",
-        "firebase",
-        "firebase/app",
-        "firebase/firestore",
-        "firebase/storage",
-        "firebase/auth",
-        "@tiptap/react",
-        "@tiptap/starter-kit",
-        "@tiptap/extension-link",
-        "@tiptap/extension-placeholder",
+        // React and related - use function to catch all react imports
+        /^react($|\/)/,
+        /^react-dom($|\/)/,
+        // Firebase
+        /^firebase($|\/)/,
+        // Other peer deps
         "browser-image-compression",
+        "react-datepicker",
+        "react-datepicker/dist/react-datepicker.css",
+        "@react-google-maps/api",
+        "react-easy-crop",
+        // Note: tiptap extensions are bundled (not external) so consuming apps don't need them
       ],
       output: {
         globals: {

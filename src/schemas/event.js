@@ -47,11 +47,19 @@ export const DEFAULT_EVENT = {
   eventName: "",
   eventType: EVENT_TYPES.IN_PERSON,
   description: "",
+  eventLink: "",
+
+  // Event Options
+  eventPricing: "",
+  eventFormat: "", // In-Person, Virtual, Hybrid (display value)
+  eventInvitation: "",
+  eventHighlight: "", // Event type from eventTypes context
 
   // Date/Time (CANONICAL)
   startDateTime: null,
   endDateTime: null,
   timezone: "",
+  isAllDay: false,
 
   // Location
   address: "",
@@ -71,6 +79,9 @@ export const DEFAULT_EVENT = {
   // Contact
   email: "",
   phone: "",
+
+  // Admin-specific
+  isHighlighted: false,
 
   // Metadata
   status: EVENT_STATUS.PENDING,

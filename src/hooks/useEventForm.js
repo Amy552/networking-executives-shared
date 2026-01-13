@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   normalizeEventData,
   prepareEventForSave,
@@ -36,17 +36,24 @@ export function useEventForm(initialData = null, options = {}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
-  // Pre-populate organizer data for non-admin users
+  // Track if organizer data has been applied (to avoid repeated updates)
+  const organizerDataApplied = useRef(false);
+
+  // Pre-populate organizer data for non-admin users (only once)
+  // Pre-populate organization name, website, organizer ID, and contact email from organizer data
   useEffect(() => {
-    if (!isAdmin && organizerData && !initialData) {
+    if (!isAdmin && organizerData && !initialData && !organizerDataApplied.current) {
+      organizerDataApplied.current = true;
       setFormData((prev) => ({
         ...prev,
         organizationName: organizerData.organizationName || prev.organizationName,
-        email: organizerData.businessEmail || organizerData.email || prev.email,
-        phone: organizerData.contactPhone || organizerData.phone || prev.phone,
         organizationWeblink:
           organizerData.website || organizerData.organizationWeblink || prev.organizationWeblink,
         organizerId: organizerData.id || organizerData.organizerId || prev.organizerId,
+        // Pre-populate contact email from organizer's business email
+        email: organizerData.businessEmail || organizerData.email || prev.email,
+        // Pre-populate phone if available
+        phone: organizerData.contactPhone || organizerData.phone || prev.phone,
       }));
     }
   }, [isAdmin, organizerData, initialData]);
@@ -321,6 +328,7 @@ export function useEventForm(initialData = null, options = {}) {
 
   /**
    * Reset form to initial state
+   * Also resets organizerDataApplied ref so organizer data will be re-applied
    */
   const resetForm = useCallback(() => {
     if (initialData) {
@@ -331,6 +339,8 @@ export function useEventForm(initialData = null, options = {}) {
     setErrors({});
     setTouched({});
     setIsDirty(false);
+    // Reset the ref so organizer data will be re-applied on next render
+    organizerDataApplied.current = false;
   }, [initialData]);
 
   /**

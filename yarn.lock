@@ -454,6 +454,36 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.55.1.tgz#f79437939020b83057faf07e98365b1fa51c458b"
   integrity sha512-SPEpaL6DX4rmcXtnhdrQYgzQ5W2uW3SCJch88lB2zImhJRhIIK44fkUrgIV/Q8yUNfw5oyZ5vkeQsZLhCb06lw==
 
+"@tiptap/core@^3.15.3":
+  version "3.15.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-3.15.3.tgz#79e403cfd3c1f0c730c09a9dd64bf36a50b91073"
+  integrity sha512-bmXydIHfm2rEtGju39FiQNfzkFx9CDvJe+xem1dgEZ2P6Dj7nQX9LnA1ZscW7TuzbBRkL5p3dwuBIi3f62A66A==
+
+"@tiptap/extension-color@^3.15.3":
+  version "3.15.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-color/-/extension-color-3.15.3.tgz#d2952e5c909ef8c191d976bdb9e226a225d3347e"
+  integrity sha512-GS+LEJ7YC7J6CiQ/caTDVyKg+ZlU4B5ofzAZ0iCWPahjMyUUZImzXvoRlfMumAiPG+IUW9PC2BztSGd3SCLpGA==
+
+"@tiptap/extension-heading@^3.15.3":
+  version "3.15.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-heading/-/extension-heading-3.15.3.tgz#85df0fd1c85e445a1a33e9caa1d52a62015feee6"
+  integrity sha512-G1GG6iN1YXPS+75arDpo+bYRzhr3dNDw99c7D7na3aDawa9Qp7sZ/bVrzFUUcVEce0cD6h83yY7AooBxEc67hA==
+
+"@tiptap/extension-highlight@^3.15.3":
+  version "3.15.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-highlight/-/extension-highlight-3.15.3.tgz#5197e49535ffd5b647ef91167dd2b72b4d7fc592"
+  integrity sha512-ZZyuKGW4WrMx3pBEfsHqOcqEklfiiAjVuvhji9FJcip1w0B2OnMWkgZw7rdAlsQG8pGH6NWh9Gf2DOUsjuAa6A==
+
+"@tiptap/extension-image@^3.15.3":
+  version "3.15.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-image/-/extension-image-3.15.3.tgz#efbc7cba979f5cd45891acccca3e01eee21015a6"
+  integrity sha512-Tjq9BHlC/0bGR9/uySA0tv6I1Ua1Q5t5P/mdbWyZi4JdUpKHRfgenzfXF5DYnklJ01QJ7uOPSp9sAGgPzBixtQ==
+
+"@tiptap/extension-text-style@^3.15.3":
+  version "3.15.3"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-text-style/-/extension-text-style-3.15.3.tgz#3fc5b1c16cc9d4c1888ebdb9fa6dd0dee30ca889"
+  integrity sha512-/M7fuGRPVkeM14rQ1bNiLZUs2N+FuVhIsLEwNKKk7GaTGKHzmkC1b2COmbICivuFYf90KWzaG0R+Pm7cnW6KaA==
+
 "@types/babel__core@^7.20.5":
   version "7.20.5"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.20.5.tgz#3df15f27ba85319caa07ba08d0721889bb39c017"

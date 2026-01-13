@@ -269,14 +269,51 @@ export async function uploadImage(file, options = {}) {
 
 /**
  * Upload image with simple interface (no progress tracking)
+ * Uses uploadBytes instead of uploadBytesResumable for simpler setup
  *
  * @param {File} file - Image file to upload
  * @param {string} path - Storage path
+ * @param {Object} options - Upload options
+ * @param {string} options.compression - Compression preset
+ * @param {boolean} options.skipCompression - Skip compression
  * @returns {Promise<string|null>} Download URL or null if failed
  */
-export async function uploadImageSimple(file, path = "events") {
-  const result = await uploadImage(file, { path });
-  return result.success ? result.url : null;
+export async function uploadImageSimple(file, path = "events", options = {}) {
+  ensureInitialized();
+
+  try {
+    const { compression = "event", skipCompression = false } = options;
+
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      console.error("Image validation failed:", validation.error);
+      return null;
+    }
+
+    // Compress if not skipped
+    let fileToUpload = file;
+    if (!skipCompression) {
+      fileToUpload = await compressImage(file, compression);
+    }
+
+    // Generate filename
+    const finalFilename = generateUniqueFilename(file.name, path);
+    const storagePath = `${path}/${finalFilename}`;
+
+    // Create storage reference
+    const storageRef = storageFunctions.ref(storage, storagePath);
+
+    // Upload using simple uploadBytes (no progress tracking needed)
+    await storageFunctions.uploadBytes(storageRef, fileToUpload);
+
+    // Get download URL
+    const downloadURL = await storageFunctions.getDownloadURL(storageRef);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    return null;
+  }
 }
 
 /**

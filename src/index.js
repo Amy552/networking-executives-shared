@@ -114,5 +114,18 @@ export {
   useEventValidation,
 } from "./hooks/index.js";
 
-// Components exports (Phase 4 - placeholder)
-// export * from "./components/index.js";
+// Components exports (Phase 4)
+export {
+  EventForm,
+  EventFormActions,
+  EventDateTimePicker,
+  EventDateTimeRange,
+  formatDateForStorage,
+  parseDateFromStorage,
+  LocationPicker,
+  CityPicker,
+  RichTextEditor,
+  stripHtml,
+  ImageCropper,
+  useImageCropper,
+} from "./components/index.js";

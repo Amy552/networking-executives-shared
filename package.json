@@ -8,22 +8,27 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "default": "./dist/index.js"
     },
     "./schemas": {
-      "import": "./dist/schemas/index.js"
+      "import": "./dist/schemas.js",
+      "default": "./dist/schemas.js"
     },
     "./hooks": {
-      "import": "./dist/hooks/index.js"
+      "import": "./dist/hooks.js",
+      "default": "./dist/hooks.js"
     },
     "./services": {
-      "import": "./dist/services/index.js"
+      "import": "./dist/services.js",
+      "default": "./dist/services.js"
     },
     "./utils": {
-      "import": "./dist/utils/index.js"
+      "import": "./dist/utils.js",
+      "default": "./dist/utils.js"
     },
     "./components": {
-      "import": "./dist/components/index.js"
+      "import": "./dist/components.js",
+      "default": "./dist/components.js"
     }
   },
   "files": [
@@ -36,6 +41,12 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "@tiptap/core": "^3.15.3",
+    "@tiptap/extension-color": "^3.15.3",
+    "@tiptap/extension-heading": "^3.15.3",
+    "@tiptap/extension-highlight": "^3.15.3",
+    "@tiptap/extension-image": "^3.15.3",
+    "@tiptap/extension-text-style": "^3.15.3",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "yup": "^1.6.1"
