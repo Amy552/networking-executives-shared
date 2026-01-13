@@ -208,7 +208,8 @@ export function useEventForm(initialData = null, options = {}) {
       newErrors.description = "Description is required";
     }
 
-    if (!data.eventType) {
+    // Event type - Admin may use eventFormat instead of eventType
+    if (!data.eventType && !isAdmin) {
       newErrors.eventType = "Event type is required";
     }
 
@@ -216,9 +217,7 @@ export function useEventForm(initialData = null, options = {}) {
       newErrors.startDateTime = "Start date and time is required";
     }
 
-    if (!data.endDateTime) {
-      newErrors.endDateTime = "End date and time is required";
-    }
+    // End date is optional for flexibility
 
     // Date validation
     if (data.startDateTime && data.endDateTime) {
@@ -230,31 +229,40 @@ export function useEventForm(initialData = null, options = {}) {
       }
     }
 
-    // Location validation for in-person/hybrid events
-    if (data.eventType === "in-person" || data.eventType === "hybrid") {
+    // Determine event type - check both eventType and eventFormat (admin may use either)
+    const eventType = (data.eventType || data.eventFormat || "").toLowerCase();
+    const isVirtual = eventType === "virtual";
+    const isInPerson = eventType === "in-person" || eventType === "in person";
+    const isHybrid = eventType === "hybrid";
+
+    // Location validation for in-person/hybrid events only (skip for virtual)
+    if (isInPerson || isHybrid) {
       if (!data.address?.trim()) {
         newErrors.address = "Address is required for in-person events";
       }
       if (!data.city?.trim()) {
-        newErrors.city = "City is required";
+        newErrors.city = "City is required for in-person events";
       }
-      if (!data.state?.trim()) {
+      // State only required for non-admin
+      if (!isAdmin && !data.state?.trim()) {
         newErrors.state = "State is required";
       }
     }
 
-    // Virtual link for virtual/hybrid events
-    if (data.eventType === "virtual" || data.eventType === "hybrid") {
+    // Virtual link for virtual/hybrid events (only for non-admin)
+    if ((isVirtual || isHybrid) && !isAdmin) {
       if (!data.virtualLink?.trim()) {
         newErrors.virtualLink = "Virtual link is required for virtual events";
       }
     }
 
-    // Contact validation
-    if (!data.email?.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-      newErrors.email = "Please enter a valid email address";
+    // Contact validation - only for non-admin users
+    if (!isAdmin) {
+      if (!data.email?.trim()) {
+        newErrors.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
     }
 
     // Industries validation
@@ -264,7 +272,7 @@ export function useEventForm(initialData = null, options = {}) {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData]);
+  }, [formData, isAdmin]);
 
   /**
    * Get data prepared for submission

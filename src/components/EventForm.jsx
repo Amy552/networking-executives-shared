@@ -562,118 +562,134 @@ export function EventForm({
       )}
 
       {/* Location Section */}
-      {formConfig.showLocation && (
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-            Location
-          </h3>
+      {formConfig.showLocation && (() => {
+        // Check both eventType and eventFormat (admin uses eventFormat dropdown)
+        const format = (formData?.eventType || formData?.eventFormat || "").toLowerCase();
+        const isInPerson = format === "in-person" || format === "in person";
+        const isHybrid = format === "hybrid";
+        const isVirtual = format === "virtual";
+        const showLocation = isInPerson || isHybrid;
+        const showVirtual = isVirtual || isHybrid;
 
-          {(formData?.eventType === EVENT_TYPES.IN_PERSON || formData?.eventType === EVENT_TYPES.HYBRID) && (
-            <>
-              <LocationPicker
-                value={formData?.address || ""}
-                onChange={handleLocationSelect}
-                label="Address"
-                required
-                error={fieldError("address")}
-                layout={formConfig.layout}
-              />
+        if (!showLocation && !showVirtual) return null;
 
-              {cities.length > 0 ? (
-                <CityPicker
-                  value={formData?.city || ""}
-                  onChange={handleCitySelect}
-                  cities={cities}
-                  label="City"
+        return (
+          <section className="space-y-4">
+            {showLocation && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Location
+                </h3>
+                <LocationPicker
+                  value={formData?.address || ""}
+                  onChange={handleLocationSelect}
+                  label="Address"
                   required
-                  error={fieldError("city")}
+                  error={fieldError("address")}
                   layout={formConfig.layout}
                 />
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-base font-medium text-[#2D2C3C]">
-                      City <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData?.city || ""}
-                      onChange={(e) => updateField("city", e.target.value)}
-                      disabled={isSubmitting}
-                      placeholder="City"
-                      className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
-                        fieldError("city") ? "border-red-500" : "border-gray-300"
-                      }`}
-                    />
-                    {fieldError("city") && (
-                      <p className="mt-1 text-sm text-red-500">{fieldError("city")}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="text-base font-medium text-[#2D2C3C]">
-                      State <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData?.state || ""}
-                      onChange={(e) => updateField("state", e.target.value)}
-                      disabled={isSubmitting}
-                      placeholder="State"
-                      className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
-                        fieldError("state") ? "border-red-500" : "border-gray-300"
-                      }`}
-                    />
-                    {fieldError("state") && (
-                      <p className="mt-1 text-sm text-red-500">{fieldError("state")}</p>
-                    )}
-                  </div>
-                </div>
-              )}
 
-              <div className="w-full md:w-1/2">
-                <label className="text-base font-medium text-[#2D2C3C]">
-                  Zip Code
-                </label>
-                <input
-                  type="text"
-                  value={formData?.zipCode || ""}
-                  onChange={(e) => updateField("zipCode", e.target.value)}
-                  disabled={isSubmitting}
-                  placeholder="12345"
-                  maxLength={10}
-                  className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
-                    fieldError("zipCode") ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {fieldError("zipCode") && (
-                  <p className="mt-1 text-sm text-red-500">{fieldError("zipCode")}</p>
+                {cities.length > 0 ? (
+                  <CityPicker
+                    value={formData?.city || ""}
+                    onChange={handleCitySelect}
+                    cities={cities}
+                    label="City"
+                    required
+                    error={fieldError("city")}
+                    layout={formConfig.layout}
+                  />
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-base font-medium text-[#2D2C3C]">
+                        City <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData?.city || ""}
+                        onChange={(e) => updateField("city", e.target.value)}
+                        disabled={isSubmitting}
+                        placeholder="City"
+                        className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                          fieldError("city") ? "border-red-500" : "border-gray-300"
+                        }`}
+                      />
+                      {fieldError("city") && (
+                        <p className="mt-1 text-sm text-red-500">{fieldError("city")}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-base font-medium text-[#2D2C3C]">
+                        State <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData?.state || ""}
+                        onChange={(e) => updateField("state", e.target.value)}
+                        disabled={isSubmitting}
+                        placeholder="State"
+                        className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                          fieldError("state") ? "border-red-500" : "border-gray-300"
+                        }`}
+                      />
+                      {fieldError("state") && (
+                        <p className="mt-1 text-sm text-red-500">{fieldError("state")}</p>
+                      )}
+                    </div>
+                  </div>
                 )}
-              </div>
-            </>
-          )}
 
-          {(formData?.eventType === EVENT_TYPES.VIRTUAL || formData?.eventType === EVENT_TYPES.HYBRID) && (
-            <div className="w-full">
-              <label className="text-base font-medium text-[#2D2C3C]">
-                Virtual Event Link <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="url"
-                value={formData?.virtualLink || ""}
-                onChange={(e) => updateField("virtualLink", e.target.value)}
-                disabled={isSubmitting}
-                placeholder="https://zoom.us/j/..."
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
-                  fieldError("virtualLink") ? "border-red-500" : "border-gray-300"
-                }`}
-              />
-              {fieldError("virtualLink") && (
-                <p className="mt-1 text-sm text-red-500">{fieldError("virtualLink")}</p>
-              )}
-            </div>
-          )}
-        </section>
-      )}
+                <div className="w-full md:w-1/2">
+                  <label className="text-base font-medium text-[#2D2C3C]">
+                    Zip Code
+                  </label>
+                  <input
+                    type="text"
+                    value={formData?.zipCode || ""}
+                    onChange={(e) => updateField("zipCode", e.target.value)}
+                    disabled={isSubmitting}
+                    placeholder="12345"
+                    maxLength={10}
+                    className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                      fieldError("zipCode") ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {fieldError("zipCode") && (
+                    <p className="mt-1 text-sm text-red-500">{fieldError("zipCode")}</p>
+                  )}
+                </div>
+              </>
+            )}
+
+            {showVirtual && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                  Virtual Event Details
+                </h3>
+                <div className="w-full">
+                  <label className="text-base font-medium text-[#2D2C3C]">
+                    Virtual Event Link
+                  </label>
+                  <input
+                    type="url"
+                    value={formData?.virtualLink || ""}
+                    onChange={(e) => updateField("virtualLink", e.target.value)}
+                    disabled={isSubmitting}
+                    placeholder="https://zoom.us/j/..."
+                    className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                      fieldError("virtualLink") ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {fieldError("virtualLink") && (
+                    <p className="mt-1 text-sm text-red-500">{fieldError("virtualLink")}</p>
+                  )}
+                </div>
+              </>
+            )}
+          </section>
+        );
+      })()}
 
       {/* Industries/Categories Section */}
       {formConfig.showIndustries && industries.length > 0 && (
