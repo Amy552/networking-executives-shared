@@ -22,7 +22,7 @@ const WARNING_BORDER = "FFE69C";
  */
 export const generateBulkUploadTemplate = async (ExcelJS, options = {}) => {
   const {
-    eventTypes = ["Awards / Recognition", "Gala / Flagship", "Speakers / Panelists"],
+    eventTypes = [],
     industries = [],
     organizerDefaults = {},
   } = options;
@@ -92,11 +92,13 @@ export const generateBulkUploadTemplate = async (ExcelJS, options = {}) => {
   addEmptyRow();
 
   // Event Types
-  addSectionHeader("AVAILABLE EVENT TYPES");
-  addEmptyRow();
-  addText("Select ONE event type per event:");
-  eventTypes.forEach((t) => addText("- " + t, true));
-  addEmptyRow();
+  if (eventTypes.length > 0) {
+    addSectionHeader("AVAILABLE EVENT TYPES");
+    addEmptyRow();
+    addText("Select ONE event type per event:");
+    eventTypes.forEach((t) => addText("- " + t, true));
+    addEmptyRow();
+  }
 
   // Industries
   if (industries.length > 0) {
@@ -137,8 +139,8 @@ export const generateBulkUploadTemplate = async (ExcelJS, options = {}) => {
   // Address Format
   addSectionHeader("ADDRESS FORMAT");
   addEmptyRow();
-  addText("Enter full address including:", true);
-  addText("Street Address, City, State ZIP", true);
+  addText("Use a valid Google Maps address for best results", true);
+  addText("Enter full address including: Street Address, City, State ZIP", true);
   addText("Example: 123 Main St, Dallas, TX 75201", true);
   addEmptyRow();
 
@@ -146,7 +148,7 @@ export const generateBulkUploadTemplate = async (ExcelJS, options = {}) => {
   addSectionHeader("DESCRIPTION FORMATTING");
   addEmptyRow();
   addText("Keep descriptions concise (1-3 paragraphs recommended)", true);
-  addText("HTML tags are NOT supported - plain text only", true);
+  addText("HTML is supported! Visit text-html.com to convert rich text to HTML", true);
   addEmptyRow();
 
   // Footer
