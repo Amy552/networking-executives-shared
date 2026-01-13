@@ -129,3 +129,23 @@ export {
   ImageCropper,
   useImageCropper,
 } from "./components/index.js";
+
+// Bulk Upload utilities
+export {
+  // Constants
+  EXCEL_COLUMNS,
+  MULTI_VALUE_SEPARATOR,
+  MAX_INDUSTRIES,
+  // Utility functions
+  normalizeTime,
+  normalizeUrl,
+  formatLocalDateTime,
+  parseExcelFile,
+  validateBulkUploadEvents,
+  transformEventForFirestore,
+} from "./utils/bulkUploadUtils.js";
+
+export {
+  generateBulkUploadTemplate,
+  downloadBulkUploadTemplate,
+} from "./utils/excelTemplateGenerator.js";
