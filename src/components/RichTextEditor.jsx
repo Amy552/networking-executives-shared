@@ -231,7 +231,10 @@ export function RichTextEditor({
 
   // Handle HTML source changes
   const handleHtmlSourceChange = (e) => {
-    setHtmlSource(e.target.value);
+    const newHtml = e.target.value;
+    setHtmlSource(newHtml);
+    // Notify parent of changes so validation works in HTML mode
+    onChange(newHtml.trim() ? newHtml : "");
   };
 
   // Add link handler
