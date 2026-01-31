@@ -400,48 +400,79 @@ export async function updateEventStatus(eventId, status) {
  * @param {string} excludeId - Event ID to exclude from check (for updates)
  * @returns {Promise<boolean>} Whether a duplicate exists
  */
-export async function checkDuplicateEvent(eventData, excludeId = null) {
+/**
+ * Duplicate detection warning message (client-provided copy)
+ */
+export const DUPLICATE_EVENT_WARNING =
+  "NOTICE: Another event is scheduled for the same time and location. Please ensure that this submission is not a duplicate. Thank you.";
+
+/**
+ * Check for duplicate events by matching startDateTime + location (lat/lng).
+ *
+ * @param {Object} params
+ * @param {string|Date} params.startDateTime - Start date/time of the event to check
+ * @param {number|null}  params.latitude     - Latitude (null for virtual events — skips check)
+ * @param {number|null}  params.longitude    - Longitude
+ * @param {string|null}  params.excludeId    - Event ID to exclude (for edit flows)
+ * @returns {Promise<{ isDuplicate: boolean, matchingEvent?: { id: string, eventTitle: string, startDateTime: string } }>}
+ */
+export async function checkDuplicateEvent({ startDateTime, latitude, longitude, excludeId = null }) {
   ensureInitialized();
 
+  // Nothing to compare without coordinates or start time
+  if (latitude == null || longitude == null || !startDateTime) {
+    return { isDuplicate: false };
+  }
+
+  const truncate = (num) => parseFloat(Number(num).toFixed(5));
+  const targetLat = truncate(latitude);
+  const targetLng = truncate(longitude);
+
+  // Handle Firestore Timestamp, Date object, or ISO string
+  const toTimestamp = (val) => {
+    if (val && typeof val.toDate === "function") return val.toDate().getTime();
+    if (val && typeof val.seconds === "number") return val.seconds * 1000;
+    const d = val instanceof Date ? val : new Date(val);
+    return d.getTime();
+  };
+  const targetTimestamp = toTimestamp(startDateTime);
+
+  if (isNaN(targetTimestamp)) {
+    return { isDuplicate: false };
+  }
+
   try {
-    const normalized = normalizeEventData(eventData);
+    const querySnapshot = await firestoreFunctions.getDocs(getEventsCollection());
 
-    // Query for potential duplicates
-    const q = firestoreFunctions.query(
-      getEventsCollection(),
-      firestoreFunctions.where("organizationName", "==", normalized.organizationName),
-      firestoreFunctions.where("eventName", "==", normalized.eventName),
-      firestoreFunctions.limit(5)
-    );
-
-    const querySnapshot = await firestoreFunctions.getDocs(q);
-
-    // Check each result
     for (const doc of querySnapshot.docs) {
-      // Skip the event being updated
       if (excludeId && doc.id === excludeId) continue;
 
-      const existing = doc.data();
-      const existingStart = existing.startDateTime || existing.starteventDateTime;
-      const newStart = normalized.startDateTime;
+      const data = doc.data();
+      if (data.latitude == null || data.longitude == null) continue;
 
-      // Compare dates (within same day)
-      if (existingStart && newStart) {
-        const existingDate = existingStart.toDate
-          ? existingStart.toDate()
-          : new Date(existingStart);
-        const newDate = newStart instanceof Date ? newStart : new Date(newStart);
+      const dbLat = truncate(data.latitude);
+      const dbLng = truncate(data.longitude);
+      const dbStartRaw = data.startDateTime || data.starteventDateTime;
+      if (!dbStartRaw) continue;
 
-        if (existingDate.toDateString() === newDate.toDateString()) {
-          return true; // Duplicate found
-        }
+      const dbTimestamp = toTimestamp(dbStartRaw);
+
+      if (dbLat === targetLat && dbLng === targetLng && dbTimestamp === targetTimestamp) {
+        return {
+          isDuplicate: true,
+          matchingEvent: {
+            id: doc.id,
+            eventTitle: data.eventTitle || "",
+            startDateTime: dbStartRaw,
+          },
+        };
       }
     }
 
-    return false;
+    return { isDuplicate: false };
   } catch (error) {
     console.error("Error checking for duplicate event:", error);
-    return false; // Allow creation on error
+    return { isDuplicate: false };
   }
 }
 
@@ -491,5 +522,6 @@ export default {
   getPendingEvents,
   updateEventStatus,
   checkDuplicateEvent,
+  DUPLICATE_EVENT_WARNING,
   bulkCreateEvents,
 };

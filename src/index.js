@@ -86,6 +86,7 @@ export {
   getPendingEvents,
   updateEventStatus,
   checkDuplicateEvent,
+  DUPLICATE_EVENT_WARNING,
   bulkCreateEvents,
   eventService,
   // Image Service

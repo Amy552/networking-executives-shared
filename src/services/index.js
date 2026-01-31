@@ -46,6 +46,7 @@ export {
   getPendingEvents,
   updateEventStatus,
   checkDuplicateEvent,
+  DUPLICATE_EVENT_WARNING,
   bulkCreateEvents,
 } from "./eventService.js";
 
