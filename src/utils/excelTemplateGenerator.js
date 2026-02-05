@@ -283,10 +283,10 @@ export const generateBulkUploadTemplate = async (ExcelJS, options = {}) => {
   addRefSection("PRICING OPTIONS", ["Free", "Paid"]);
   addRefSection("ACCESS OPTIONS", [
     "Open Access",
-    "Application required",
-    "Executives only",
     "Limited Access",
+    "Application required",
     "Members only",
+    "Executives only",
   ]);
   addRefSection("DATE FORMAT (YYYY-MM-DD)", [
     "2026-01-15  (January 15, 2026)",

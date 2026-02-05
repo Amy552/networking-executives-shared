@@ -480,11 +480,11 @@ export function EventForm({
               }`}
             >
               <option value="" disabled hidden>Select Access & Invitation</option>
-              <option value="Application required">Application required</option>
-              <option value="Executives only">Executives only</option>
-              <option value="Limited Access">Limited Access (Guest or First-Time)</option>
-              <option value="Members only">Members only</option>
               <option value="Open Access">Open Access</option>
+              <option value="Limited Access">Limited Access (Guest or First-Time)</option>
+              <option value="Application required">Application required</option>
+              <option value="Members only">Members only</option>
+              <option value="Executives only">Executives only</option>
             </select>
             {fieldError("eventInvitation") && (
               <p className="mt-1 text-sm text-red-500">{fieldError("eventInvitation")}</p>
