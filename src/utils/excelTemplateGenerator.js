@@ -216,7 +216,7 @@ export const generateBulkUploadTemplate = async (ExcelJS, options = {}) => {
     "21:00",
     "https://example.com/register",
     "123 Main St, Dallas, TX 75201",
-    organizerDefaults.defaultCity || "Dallas/Ft Worth",
+    organizerDefaults.defaultCity || "Dallas-Fort Worth",
     organizerDefaults.defaultFormat || "In-Person",
     organizerDefaults.defaultPricing || "Free",
     organizerDefaults.defaultInvitation || "Open Access",
