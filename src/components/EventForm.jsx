@@ -38,6 +38,7 @@ export function EventForm({
   industries = [],
   eventTypes = [],
   onImageUpload,
+  onImageError,
   isSubmitting = false,
   config = {},
 }) {
@@ -150,11 +151,17 @@ export function EventForm({
   const handleImageSelect = useCallback((e) => {
     imageCropper.handleFileSelect(e, {
       allowedTypes: ["image/png", "image/jpeg", "image/jpg"],
+      minWidth: 1440,
+      minHeight: 650,
       onError: (error) => {
+        if (onImageError) {
+          onImageError(error);
+          return;
+        }
         console.error("Image selection error:", error);
       },
     });
-  }, [imageCropper]);
+  }, [imageCropper, onImageError]);
 
   // Handle drag and drop for image upload
   const handleDragOver = useCallback((e) => {
@@ -860,7 +867,10 @@ export function EventForm({
         imageSrc={imageCropper.imageSrc}
         onCropComplete={handleCropComplete}
         onCancel={imageCropper.closeCropper}
+        onError={onImageError}
         aspect={1440 / 650}
+        cropWidth={1440}
+        cropHeight={650}
         title="Crop Event Image"
       />
     </div>

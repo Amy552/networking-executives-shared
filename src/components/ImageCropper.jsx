@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
 
 /**
@@ -8,7 +8,16 @@ import Cropper from "react-easy-crop";
  * @param {string} outputType - Output MIME type
  * @returns {Promise<File>} - Cropped image file
  */
-const getCroppedImg = async (imageSrc, pixelCrop, outputType = "image/jpeg") => {
+const getCroppedImg = async (
+  imageSrc,
+  pixelCrop,
+  {
+    outputType = "image/jpeg",
+    cropWidth = 1440,
+    cropHeight = 650,
+    outputScale = 1,
+  } = {},
+) => {
   const image = new Image();
   image.src = imageSrc;
   await new Promise((resolve) => (image.onload = resolve));
@@ -16,8 +25,16 @@ const getCroppedImg = async (imageSrc, pixelCrop, outputType = "image/jpeg") => 
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  const outputWidth = cropWidth * outputScale;
+  const outputHeight = cropHeight * outputScale;
+
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+
+  if (outputType === "image/jpeg") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, outputWidth, outputHeight);
+  }
 
   ctx.drawImage(
     image,
@@ -27,8 +44,8 @@ const getCroppedImg = async (imageSrc, pixelCrop, outputType = "image/jpeg") => 
     pixelCrop.height,
     0,
     0,
-    pixelCrop.width,
-    pixelCrop.height
+    outputWidth,
+    outputHeight
   );
 
   return new Promise((resolve) => {
@@ -38,7 +55,7 @@ const getCroppedImg = async (imageSrc, pixelCrop, outputType = "image/jpeg") => 
         resolve(new File([blob], `cropped-image.${extension}`, { type: outputType }));
       },
       outputType,
-      0.9
+      outputType === "image/jpeg" ? 1 : undefined
     );
   });
 };
@@ -61,22 +78,91 @@ export function ImageCropper({
   imageSrc,
   onCropComplete,
   onCancel,
+  onError,
   aspect = 1440 / 650,
+  cropWidth = 1440,
+  cropHeight = 650,
   title = "Crop Image",
+  prefer2x = true,
+  maxAllowedZoom = 3,
+  minAllowedZoom = 0.1,
   styles = {},
 }) {
+  const DEFAULT_ZOOM = 1;
   const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
+  const [minZoom, setMinZoom] = useState(DEFAULT_ZOOM);
+  const [maxZoom, setMaxZoom] = useState(maxAllowedZoom);
+  const [outputScale, setOutputScale] = useState(1);
+  const [sourceMimeType, setSourceMimeType] = useState("image/jpeg");
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !imageSrc) {
+      setZoom(DEFAULT_ZOOM);
+      setMinZoom(DEFAULT_ZOOM);
+      setMaxZoom(maxAllowedZoom);
+      setOutputScale(1);
+      setCroppedAreaPixels(null);
+      return;
+    }
+
+    const img = new Image();
+    img.src = imageSrc;
+    img.onload = () => {
+      if (img.width < cropWidth || img.height < cropHeight) {
+        onError?.(`Image is too small. Minimum size is ${cropWidth}x${cropHeight}px.`);
+        onCancel?.();
+        return;
+      }
+
+      const calculatedOutputScale =
+        prefer2x && img.width >= cropWidth * 2 && img.height >= cropHeight * 2 ? 2 : 1;
+      const outputWidth = cropWidth * calculatedOutputScale;
+      const outputHeight = cropHeight * calculatedOutputScale;
+
+      const oneToOneMaxZoom = Math.min(img.width / outputWidth, img.height / outputHeight);
+      const calculatedMaxZoom = Math.max(DEFAULT_ZOOM, Math.min(maxAllowedZoom, oneToOneMaxZoom));
+
+      const widthRatio = cropWidth / img.width;
+      const heightRatio = cropHeight / img.height;
+      const fitInsideZoom = Math.min(widthRatio, heightRatio);
+      const calculatedMinZoom = Math.max(minAllowedZoom, Math.min(fitInsideZoom, DEFAULT_ZOOM));
+
+      setOutputScale(calculatedOutputScale);
+      setMinZoom(calculatedMinZoom);
+      setMaxZoom(Math.max(calculatedMinZoom, calculatedMaxZoom));
+      setZoom(DEFAULT_ZOOM);
+      setCrop({ x: 0, y: 0 });
+
+      const mimeFromDataUrl = typeof imageSrc === "string" && imageSrc.startsWith("data:image/png")
+        ? "image/png"
+        : "image/jpeg";
+      setSourceMimeType(mimeFromDataUrl);
+    };
+  }, [
+    isOpen,
+    imageSrc,
+    cropWidth,
+    cropHeight,
+    prefer2x,
+    maxAllowedZoom,
+    minAllowedZoom,
+    onCancel,
+  ]);
 
   const onCropChange = useCallback((crop) => {
     setCrop(crop);
   }, []);
 
-  const onZoomChange = useCallback((zoom) => {
-    setZoom(zoom);
-  }, []);
+  const onZoomChange = useCallback(
+    (nextZoom) => {
+      const clampedZoom = Math.min(maxZoom, Math.max(minZoom, nextZoom));
+      setZoom(clampedZoom);
+    },
+    [minZoom, maxZoom],
+  );
 
   const onCropCompleteCallback = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -87,7 +173,12 @@ export function ImageCropper({
 
     setIsProcessing(true);
     try {
-      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
+      const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels, {
+        outputType: sourceMimeType === "image/png" ? "image/png" : "image/jpeg",
+        cropWidth,
+        cropHeight,
+        outputScale,
+      });
       onCropComplete(croppedImage);
     } catch (error) {
       console.error("Error cropping image:", error);
@@ -98,7 +189,7 @@ export function ImageCropper({
 
   const handleCancel = () => {
     setCrop({ x: 0, y: 0 });
-    setZoom(1);
+    setZoom(DEFAULT_ZOOM);
     setCroppedAreaPixels(null);
     onCancel();
   };
@@ -134,18 +225,21 @@ export function ImageCropper({
             onCropChange={onCropChange}
             onZoomChange={onZoomChange}
             onCropComplete={onCropCompleteCallback}
+            minZoom={minZoom}
+            maxZoom={maxZoom}
+            restrictPosition={false}
           />
         </div>
 
         <div className={defaultStyles.zoomContainer}>
-          <label className={defaultStyles.zoomLabel}>Zoom: {zoom.toFixed(1)}x</label>
+          <label className={defaultStyles.zoomLabel}>Zoom: {zoom.toFixed(2)}x</label>
           <input
             type="range"
-            min={1}
-            max={3}
-            step={0.1}
-            value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))}
+            min={minZoom}
+            max={maxZoom}
+            step={0.01}
+            value={Math.min(maxZoom, Math.max(minZoom, zoom))}
+            onChange={(e) => onZoomChange(Number(e.target.value))}
             className={defaultStyles.zoomInput}
           />
         </div>
@@ -199,7 +293,12 @@ export function useImageCropper() {
    * @param {function} options.onError - Error callback
    */
   const handleFileSelect = useCallback((event, options = {}) => {
-    const { allowedTypes = ["image/png", "image/jpeg", "image/jpg"], onError } = options;
+    const {
+      allowedTypes = ["image/png", "image/jpeg", "image/jpg"],
+      onError,
+      minWidth,
+      minHeight,
+    } = options;
     const file = event.target.files?.[0];
 
     if (!file) return;
@@ -210,14 +309,38 @@ export function useImageCropper() {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      openCropper(reader.result);
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        if (
+          typeof minWidth === "number" &&
+          typeof minHeight === "number" &&
+          (img.width < minWidth || img.height < minHeight)
+        ) {
+          onError?.(`Image is too small. Minimum size is ${minWidth}x${minHeight}px.`);
+          event.target.value = "";
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          openCropper(reader.result);
+        };
+        reader.onerror = () => {
+          onError?.("Error reading file. Please try again.");
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
     };
-    reader.onerror = () => {
-      onError?.("Error reading file. Please try again.");
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      onError?.("Invalid image file. Please try another image.");
+      event.target.value = "";
     };
-    reader.readAsDataURL(file);
+    img.src = objectUrl;
   }, [openCropper]);
 
   return {
