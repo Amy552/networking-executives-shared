@@ -136,7 +136,10 @@ export function EventForm({
   // Handle city selection
   const handleCitySelect = useCallback((cityValue) => {
     updateField("city", cityValue);
-  }, [updateField]);
+    if (!formData?.state) {
+      updateField("state", "TX");
+    }
+  }, [updateField, formData?.state]);
 
   // Handle date changes
   const handleStartDateChange = useCallback((date) => {
@@ -607,45 +610,44 @@ export function EventForm({
                     layout={formConfig.layout}
                   />
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-base font-medium text-[#2D2C3C]">
-                        City <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData?.city || ""}
-                        onChange={(e) => updateField("city", e.target.value)}
-                        disabled={isSubmitting}
-                        placeholder="City"
-                        className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
-                          fieldError("city") ? "border-red-500" : "border-gray-300"
-                        }`}
-                      />
-                      {fieldError("city") && (
-                        <p className="mt-1 text-sm text-red-500">{fieldError("city")}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-base font-medium text-[#2D2C3C]">
-                        State <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData?.state || ""}
-                        onChange={(e) => updateField("state", e.target.value)}
-                        disabled={isSubmitting}
-                        placeholder="State"
-                        className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
-                          fieldError("state") ? "border-red-500" : "border-gray-300"
-                        }`}
-                      />
-                      {fieldError("state") && (
-                        <p className="mt-1 text-sm text-red-500">{fieldError("state")}</p>
-                      )}
-                    </div>
+                  <div>
+                    <label className="text-base font-medium text-[#2D2C3C]">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData?.city || ""}
+                      onChange={(e) => updateField("city", e.target.value)}
+                      disabled={isSubmitting}
+                      placeholder="City"
+                      className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                        fieldError("city") ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                    {fieldError("city") && (
+                      <p className="mt-1 text-sm text-red-500">{fieldError("city")}</p>
+                    )}
                   </div>
                 )}
+
+                <div className="w-full md:w-1/2">
+                  <label className="text-base font-medium text-[#2D2C3C]">
+                    State <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData?.state || ""}
+                    onChange={(e) => updateField("state", e.target.value)}
+                    disabled={isSubmitting}
+                    placeholder="e.g. TX"
+                    className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                      fieldError("state") ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {fieldError("state") && (
+                    <p className="mt-1 text-sm text-red-500">{fieldError("state")}</p>
+                  )}
+                </div>
 
                 <div className="w-full md:w-1/2">
                   <label className="text-base font-medium text-[#2D2C3C]">
