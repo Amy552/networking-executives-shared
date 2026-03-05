@@ -6,7 +6,7 @@
  */
 
 // Google Maps API Key - should be moved to environment variable in production
-const GOOGLE_MAPS_API_KEY = "AIzaSyAH_51TNfoZHSr8L17-bJNvEbZoHC_ccbA";
+const GOOGLE_MAPS_API_KEY = "AIzaSyANLvk-LnUPrX_9uRicFUFz4ML0By2Ob1I";
 
 /**
  * Timezone abbreviation mappings for US timezones

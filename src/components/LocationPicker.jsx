@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
 import { getTimezoneForLocation, getDefaultTimezone } from "../services/timezoneService.js";
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyAH_51TNfoZHSr8L17-bJNvEbZoHC_ccbA";
+const GOOGLE_MAPS_API_KEY = "AIzaSyANLvk-LnUPrX_9uRicFUFz4ML0By2Ob1I";
 const LIBRARIES = ["places"];
 
 /**
