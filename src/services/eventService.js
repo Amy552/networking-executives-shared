@@ -448,6 +448,7 @@ export async function checkDuplicateEvent({ startDateTime, latitude, longitude, 
       if (excludeId && doc.id === excludeId) continue;
 
       const data = doc.data();
+      if (data.status === "rejected" || data.status === "denied") continue;
       if (data.latitude == null || data.longitude == null) continue;
 
       const dbLat = truncate(data.latitude);
