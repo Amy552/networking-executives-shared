@@ -429,30 +429,25 @@ export function EventForm({
             Event Options
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Pricing */}
-            <div className="w-full">
-              <label className="text-base font-medium text-[#2D2C3C]">
-                Pricing <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData?.eventPricing || ""}
-                onChange={(e) => updateField("eventPricing", e.target.value)}
-                disabled={isSubmitting}
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                  fieldError("eventPricing") ? "border-red-500" : "border-gray-300"
-                }`}
-              >
-                <option value="" disabled hidden>Select Pricing</option>
-                <option value="Free">Free</option>
-                <option value="Paid">Paid</option>
-              </select>
-              {fieldError("eventPricing") && (
-                <p className="mt-1 text-sm text-red-500">{fieldError("eventPricing")}</p>
-              )}
-            </div>
-
-            {/* eventFormat is derived from eventType on save — no separate dropdown needed */}
+          <div className="w-full">
+            <label className="text-base font-medium text-[#2D2C3C]">
+              Pricing <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={formData?.eventPricing || ""}
+              onChange={(e) => updateField("eventPricing", e.target.value)}
+              disabled={isSubmitting}
+              className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+                fieldError("eventPricing") ? "border-red-500" : "border-gray-300"
+              }`}
+            >
+              <option value="" disabled hidden>Select Pricing</option>
+              <option value="Free">Free</option>
+              <option value="Paid">Paid</option>
+            </select>
+            {fieldError("eventPricing") && (
+              <p className="mt-1 text-sm text-red-500">{fieldError("eventPricing")}</p>
+            )}
           </div>
 
           {/* Access & Invitation */}
