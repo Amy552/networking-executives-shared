@@ -248,7 +248,7 @@ export function EventForm({
     showEventOptions: true, // Pricing, format, invitation
     showEventLink: true,
     showHighlight: isAdmin, // Admin-only by default
-    showEventType: isAdmin && eventTypes.length > 0, // Admin event type dropdown
+    showEventType: eventTypes.length > 0, // Event type dropdown (visible to all)
     layout: "vertical",
     ...config,
   };
@@ -368,7 +368,7 @@ export function EventForm({
 
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">
-              Event Type <span className="text-red-500">*</span>
+              Attendance Type <span className="text-red-500">*</span>
             </label>
             <select
               value={formData?.eventType || ""}
@@ -378,7 +378,7 @@ export function EventForm({
                 fieldError("eventType") ? "border-red-500" : "border-gray-300"
               }`}
             >
-              <option value="" disabled>Select Event Type</option>
+              <option value="" disabled>Select Attendance Type</option>
               <option value={EVENT_TYPES.IN_PERSON}>In Person</option>
               <option value={EVENT_TYPES.VIRTUAL}>Virtual</option>
               <option value={EVENT_TYPES.HYBRID}>Hybrid</option>
@@ -452,28 +452,7 @@ export function EventForm({
               )}
             </div>
 
-            {/* Attendance Type (eventFormat) */}
-            <div className="w-full">
-              <label className="text-base font-medium text-[#2D2C3C]">
-                Attendance Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData?.eventFormat || ""}
-                onChange={(e) => updateField("eventFormat", e.target.value)}
-                disabled={isSubmitting}
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                  fieldError("eventFormat") ? "border-red-500" : "border-gray-300"
-                }`}
-              >
-                <option value="" disabled hidden>Select Attendance Type</option>
-                <option value="In-Person">In-Person</option>
-                <option value="Virtual">Virtual</option>
-                <option value="Hybrid">Hybrid</option>
-              </select>
-              {fieldError("eventFormat") && (
-                <p className="mt-1 text-sm text-red-500">{fieldError("eventFormat")}</p>
-              )}
-            </div>
+            {/* eventFormat is derived from eventType on save — no separate dropdown needed */}
           </div>
 
           {/* Access & Invitation */}
@@ -501,7 +480,7 @@ export function EventForm({
             )}
           </div>
 
-          {/* Event Type dropdown (admin only - from eventTypes context) */}
+          {/* Event Type dropdown - from eventTypes context */}
           {formConfig.showEventType && eventTypes.length > 0 && (
             <div className="w-full">
               <label className="text-base font-medium text-[#2D2C3C]">
