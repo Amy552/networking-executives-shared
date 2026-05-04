@@ -5,8 +5,7 @@
  * Consolidated from implementations in both networking-executives and admin projects.
  */
 
-// Google Maps API Key - should be moved to environment variable in production
-const GOOGLE_MAPS_API_KEY = "AIzaSyANLvk-LnUPrX_9uRicFUFz4ML0By2Ob1I";
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 /**
  * Geocode result structure
