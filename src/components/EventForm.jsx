@@ -58,6 +58,14 @@ export function EventForm({
   // Whether to also save the uploaded image as the company's new logo
   const [updateCompanyLogo, setUpdateCompanyLogo] = useState(false);
 
+  // Sync the updateCompanyLogo flag onto formData so the submit handler can read it.
+  // Done in an effect (not during render) to avoid infinite re-render loops.
+  useEffect(() => {
+    if ((formData?.__updateCompanyLogo || false) !== updateCompanyLogo) {
+      updateField("__updateCompanyLogo", updateCompanyLogo);
+    }
+  }, [updateCompanyLogo, formData?.__updateCompanyLogo, updateField]);
+
   // Track if component has mounted (to avoid initial sync triggering loops)
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -803,11 +811,6 @@ export function EventForm({
           !!companyLogo &&
           !useCustomFlyer &&
           (formData?.eventImage === companyLogo || !formData?.eventImage);
-
-        // Mark for the submit handler so it knows whether to update the company logo
-        if (formData?.__updateCompanyLogo !== updateCompanyLogo) {
-          updateField("__updateCompanyLogo", updateCompanyLogo || false);
-        }
 
         return (
         <section className="space-y-4">
