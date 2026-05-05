@@ -96,13 +96,22 @@ export function EventForm({
     setIsOtherOrgSelected(false);
     const selectedCompany = companies.find(c => c.id === value || c.name === value || c.companyName === value);
     if (selectedCompany) {
-      updateFields({
+      const updates = {
         organizationName: selectedCompany.name || selectedCompany.companyName || selectedCompany.Organization_name,
         organizationWeblink: selectedCompany.website || selectedCompany.websiteUrl || selectedCompany.organizationWeblink || "",
         organizerId: selectedCompany.id || "",
-      });
+      };
+      // Default the event flyer to the company's logo when no custom image
+      // has been set yet — admin can still override by uploading a different image.
+      const companyLogo = selectedCompany.logo || selectedCompany.logoUrl || selectedCompany.companyLogo || "";
+      const currentImage = formData?.eventImage || "";
+      const noCustomImage = !currentImage || currentImage.startsWith("blob:");
+      if (companyLogo && noCustomImage) {
+        updates.eventImage = companyLogo;
+      }
+      updateFields(updates);
     }
-  }, [companies, updateFields]);
+  }, [companies, updateFields, formData?.eventImage]);
 
   // Handle location selection from Google Places
   const handleLocationSelect = useCallback((locationData) => {
