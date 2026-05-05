@@ -52,6 +52,12 @@ export function EventForm({
   // Organization "Other" manual entry state
   const [isOtherOrgSelected, setIsOtherOrgSelected] = useState(false);
 
+  // Whether the user has explicitly chosen to upload a custom flyer
+  // (instead of using the saved company logo).
+  const [useCustomFlyer, setUseCustomFlyer] = useState(false);
+  // Whether to also save the uploaded image as the company's new logo
+  const [updateCompanyLogo, setUpdateCompanyLogo] = useState(false);
+
   // Track if component has mounted (to avoid initial sync triggering loops)
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -778,71 +784,150 @@ export function EventForm({
       )}
 
       {/* Event Image Section */}
-      {formConfig.showImage && (
+      {formConfig.showImage && (() => {
+        // Find selected company + its logo for the "use saved logo" default
+        const selectedCompany = companies.find(
+          c => c.id === formData?.organizerId || c.id === formData?.companyId
+        );
+        const companyLogo =
+          selectedCompany?.logo ||
+          selectedCompany?.logoUrl ||
+          selectedCompany?.companyLogo ||
+          "";
+        const companyName =
+          selectedCompany?.name ||
+          selectedCompany?.companyName ||
+          formData?.organizationName ||
+          "your organization";
+        const usingSavedLogo =
+          !!companyLogo &&
+          !useCustomFlyer &&
+          (formData?.eventImage === companyLogo || !formData?.eventImage);
+
+        // Mark for the submit handler so it knows whether to update the company logo
+        if (formData?.__updateCompanyLogo !== updateCompanyLogo) {
+          updateField("__updateCompanyLogo", updateCompanyLogo || false);
+        }
+
+        return (
         <section className="space-y-4">
           <div className="border-b pb-2">
             <h3 className="text-lg font-semibold text-gray-900">
-              Event Image
+              Event Flyer
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              Optional — if you don't upload a flyer, we'll use your organization's logo.
+              Optional — we'll use {companyName}'s logo on file by default.
               Upload a custom image only when you have an event-specific design.
             </p>
           </div>
 
           <div className="w-full">
-            {imagePreview ? (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Event preview"
-                  className="w-full max-h-64 object-cover rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImagePreview(null);
-                    updateField("eventImage", "");
-                  }}
-                  disabled={isSubmitting}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
+            {usingSavedLogo ? (
+              <div className="rounded-lg border border-gray-200 bg-[#fafafa] p-6">
+                <div className="flex flex-col items-center">
+                  <img
+                    src={companyLogo}
+                    alt={`${companyName} logo`}
+                    className="max-h-32 w-auto max-w-full object-contain"
+                    style={{ mixBlendMode: "multiply" }}
+                  />
+                  <p className="mt-3 text-sm font-medium text-gray-700">
+                    ✓ Using {companyName}'s logo on file
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUseCustomFlyer(true);
+                      setImagePreview(null);
+                      updateField("eventImage", "");
+                    }}
+                    className="mt-3 text-sm font-medium text-[#1a254a] underline hover:text-[#c9a34e]"
+                  >
+                    Upload a different image for this event
+                  </button>
+                </div>
+              </div>
+            ) : imagePreview ? (
+              <div className="space-y-3">
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Event preview"
+                    className="w-full max-h-64 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagePreview(null);
+                      updateField("eventImage", "");
+                      setUpdateCompanyLogo(false);
+                      // If a saved company logo exists, return to "use saved" state
+                      if (companyLogo) setUseCustomFlyer(false);
+                    }}
+                    disabled={isSubmitting}
+                    className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+                {selectedCompany?.id && (
+                  <label className="flex cursor-pointer items-start gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={updateCompanyLogo}
+                      onChange={(e) => setUpdateCompanyLogo(e.target.checked)}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      Also save this as {companyName}'s new logo (use it for future events too)
+                    </span>
+                  </label>
+                )}
               </div>
             ) : (
-              <label
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                isDragging
-                  ? "border-[#030959] bg-blue-50"
-                  : "border-gray-300 hover:bg-gray-50"
-              } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <svg className={`w-10 h-10 mb-3 transition-colors ${isDragging ? "text-[#030959]" : "text-gray-400"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                  <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-400">PNG or JPG (recommended: 1440x650)</p>
-                </div>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleImageSelect}
-                  disabled={isSubmitting}
-                  className="hidden"
-                />
-              </label>
+              <>
+                <label
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    isDragging
+                      ? "border-[#030959] bg-blue-50"
+                      : "border-gray-300 hover:bg-gray-50"
+                  } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg className={`w-10 h-10 mb-3 transition-colors ${isDragging ? "text-[#030959]" : "text-gray-400"}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-400">PNG or JPG (recommended: 1200×800px or larger)</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={handleImageSelect}
+                    disabled={isSubmitting}
+                    className="hidden"
+                  />
+                </label>
+                {companyLogo && (
+                  <button
+                    type="button"
+                    onClick={() => { setUseCustomFlyer(false); setUpdateCompanyLogo(false); }}
+                    className="mt-3 text-sm font-medium text-[#1a254a] underline hover:text-[#c9a34e]"
+                  >
+                    ← Use {companyName}'s saved logo instead
+                  </button>
+                )}
+              </>
             )}
 
             {fieldError("eventImage") && (
@@ -850,7 +935,8 @@ export function EventForm({
             )}
           </div>
         </section>
-      )}
+        );
+      })()}
 
       {/* Image Cropper Modal */}
       <ImageCropper
