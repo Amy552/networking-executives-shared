@@ -780,9 +780,15 @@ export function EventForm({
       {/* Event Image Section */}
       {formConfig.showImage && (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-            Event Image
-          </h3>
+          <div className="border-b pb-2">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Event Image
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Optional — if you don't upload a flyer, we'll use your organization's logo.
+              Upload a custom image only when you have an event-specific design.
+            </p>
+          </div>
 
           <div className="w-full">
             {imagePreview ? (
