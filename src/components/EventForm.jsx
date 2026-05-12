@@ -177,8 +177,12 @@ export function EventForm({
   const handleImageSelect = useCallback((e) => {
     imageCropper.handleFileSelect(e, {
       allowedTypes: ["image/png", "image/jpeg", "image/jpg"],
-      minWidth: 1440,
-      minHeight: 650,
+      // Relaxed minimums — typical org logos are 500-1000px wide; the
+      // previous 1440x650 minimum silently rejected those. We use
+      // object-contain rendering, so a smaller image just scales down
+      // cleanly instead of pixelating.
+      minWidth: 400,
+      minHeight: 200,
       onError: (error) => {
         if (onImageError) {
           onImageError(error);
