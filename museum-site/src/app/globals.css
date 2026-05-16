@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-paper text-ink;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply font-sans leading-relaxed;
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight text-ink;
+  }
+  h1 { @apply text-4xl md:text-5xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  a {
+    @apply underline-offset-4 decoration-ink/30 hover:decoration-ink;
+  }
+}
+
+@layer components {
+  .prose-museum p {
+    @apply mb-4 max-w-prose text-ink-soft;
+  }
+  .prose-museum p:first-of-type {
+    @apply text-lg;
+  }
+  .eyebrow {
+    @apply uppercase tracking-[0.18em] text-xs text-ink-muted font-medium;
+  }
+}
