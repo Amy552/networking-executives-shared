@@ -5,11 +5,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Museum of Remembrance",
-    template: "%s | Museum of Remembrance",
+    default: "El Paso Holocaust Museum and Study Center",
+    template: "%s | El Paso Holocaust Museum",
   },
   description:
-    "A museum dedicated to the history of the Holocaust, the testimony of survivors, and the education of future generations.",
+    "A museum on the U.S.–Mexico border dedicated to Holocaust history, survivor testimony, and education that confronts hatred in our own community.",
 };
 
 export default function RootLayout({

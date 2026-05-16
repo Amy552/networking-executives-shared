@@ -47,17 +47,20 @@ export default function SiteFooter() {
       <Container>
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-1">
-            <p className="font-serif text-xl">Museum of Remembrance</p>
+            <p className="font-serif text-xl">El Paso Holocaust Museum &amp; Study Center</p>
             <p className="mt-3 text-sm text-ink-muted">
-              A place of memory, witness, and education.
+              Memory, witness, and education on the U.S.&ndash;Mexico border.
             </p>
             <address className="mt-4 not-italic text-sm text-ink-soft">
-              123 Memorial Way
+              715 N. Oregon Street
               <br />
-              City, State 00000
+              El Paso, TX 79902
               <br />
-              <a href="tel:+10000000000">+1 (000) 000-0000</a>
+              <a href="tel:+19153514358">(915) 351-0048</a>
             </address>
+            <p className="mt-3 text-xs text-ink-muted">
+              Please verify contact details before publishing.
+            </p>
           </div>
           {groups.map((group) => (
             <div key={group.heading}>

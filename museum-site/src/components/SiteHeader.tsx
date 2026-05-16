@@ -20,10 +20,10 @@ export default function SiteHeader() {
       <Container className="flex flex-col gap-4 py-5 md:flex-row md:items-center md:justify-between">
         <Link href="/" className="no-underline">
           <span className="block font-serif text-2xl leading-tight">
-            Museum of Remembrance
+            El Paso Holocaust Museum
           </span>
           <span className="block text-xs uppercase tracking-[0.2em] text-ink-muted">
-            Holocaust history &amp; education
+            &amp; Study Center · El Paso, Texas
           </span>
         </Link>
         <nav aria-label="Primary">
