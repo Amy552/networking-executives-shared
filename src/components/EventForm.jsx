@@ -285,20 +285,20 @@ export function EventForm({
       {/* Organization Section */}
       {formConfig.showOrganization && (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
             Organization Information
           </h3>
 
           {isAdmin && companies.length > 0 ? (
             <div className="w-full">
               <label className="text-base font-medium text-[#2D2C3C]">
-                Organization <span className="text-red-500">*</span>
+                Organization <span className="text-[#c9a34e]">*</span>
               </label>
               <select
                 value={isOtherOrgSelected ? "other" : (formData?.organizationName || "")}
                 onChange={handleCompanySelect}
                 disabled={isSubmitting}
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+                className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                   fieldError("organizationName") ? "border-red-500" : "border-gray-300"
                 }`}
               >
@@ -318,7 +318,7 @@ export function EventForm({
                   onChange={(e) => updateField("organizationName", e.target.value)}
                   disabled={isSubmitting}
                   placeholder="Enter Organization Name"
-                  className="mt-2 w-full rounded-md border border-gray-300 p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  className="mt-2 w-full rounded-lg border border-gray-300 p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
               )}
               {fieldError("organizationName") && (
@@ -328,7 +328,7 @@ export function EventForm({
           ) : (
             <div className="w-full">
               <label className="text-base font-medium text-[#2D2C3C]">
-                Organization Name <span className="text-red-500">*</span>
+                Organization Name <span className="text-[#c9a34e]">*</span>
               </label>
               <input
                 type="text"
@@ -336,7 +336,7 @@ export function EventForm({
                 onChange={(e) => updateField("organizationName", e.target.value)}
                 disabled={isOrganizerFieldLocked || isSubmitting}
                 placeholder="Enter organization name"
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+                className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                   fieldError("organizationName") ? "border-red-500" : "border-gray-300"
                 } ${isOrganizerFieldLocked ? "bg-gray-100 cursor-not-allowed" : ""}`}
               />
@@ -356,7 +356,7 @@ export function EventForm({
               onChange={(e) => updateField("organizationWeblink", e.target.value)}
               disabled={(isOrganizerFieldLocked && !isAdmin) || isSubmitting}
               placeholder="https://example.com"
-              className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                 fieldError("organizationWeblink") ? "border-red-500" : "border-gray-300"
               } ${isOrganizerFieldLocked && !isAdmin ? "bg-gray-100 cursor-not-allowed" : ""}`}
             />
@@ -370,13 +370,13 @@ export function EventForm({
       {/* Event Details Section */}
       {formConfig.showEventDetails && (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
             Event Details
           </h3>
 
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">
-              Event Name <span className="text-red-500">*</span>
+              Event Name <span className="text-[#c9a34e]">*</span>
             </label>
             <input
               type="text"
@@ -384,7 +384,7 @@ export function EventForm({
               onChange={(e) => updateField("eventName", e.target.value)}
               disabled={isSubmitting}
               placeholder="Enter event name"
-              className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                 fieldError("eventName") ? "border-red-500" : "border-gray-300"
               }`}
             />
@@ -395,13 +395,13 @@ export function EventForm({
 
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">
-              Attendance Type <span className="text-red-500">*</span>
+              Attendance Type <span className="text-[#c9a34e]">*</span>
             </label>
             <select
               value={formData?.eventType || ""}
               onChange={(e) => updateField("eventType", e.target.value)}
               disabled={isSubmitting}
-              className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                 fieldError("eventType") ? "border-red-500" : "border-gray-300"
               }`}
             >
@@ -437,7 +437,7 @@ export function EventForm({
                 onChange={(e) => updateField("eventLink", e.target.value)}
                 disabled={isSubmitting}
                 placeholder="https://eventbrite.com/..."
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+                className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                   fieldError("eventLink") ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -452,19 +452,19 @@ export function EventForm({
       {/* Event Options Section (Pricing, Format, Invitation) */}
       {formConfig.showEventOptions && (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
             Event Options
           </h3>
 
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">
-              Pricing <span className="text-red-500">*</span>
+              Pricing <span className="text-[#c9a34e]">*</span>
             </label>
             <select
               value={formData?.eventPricing || ""}
               onChange={(e) => updateField("eventPricing", e.target.value)}
               disabled={isSubmitting}
-              className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                 fieldError("eventPricing") ? "border-red-500" : "border-gray-300"
               }`}
             >
@@ -480,13 +480,13 @@ export function EventForm({
           {/* Access & Invitation */}
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">
-              Access & Invitation <span className="text-red-500">*</span>
+              Access & Invitation <span className="text-[#c9a34e]">*</span>
             </label>
             <select
               value={formData?.eventInvitation || ""}
               onChange={(e) => updateField("eventInvitation", e.target.value)}
               disabled={isSubmitting}
-              className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                 fieldError("eventInvitation") ? "border-red-500" : "border-gray-300"
               }`}
             >
@@ -512,7 +512,7 @@ export function EventForm({
                 value={formData?.eventHighlight || ""}
                 onChange={(e) => updateField("eventHighlight", e.target.value)}
                 disabled={isSubmitting}
-                className="mt-1 w-full rounded-md border border-gray-300 p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="mt-1 w-full rounded-lg border border-gray-300 p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               >
                 <option value="">No specific event type</option>
                 {eventTypes.map((type) => (
@@ -546,7 +546,7 @@ export function EventForm({
       {/* Date & Time Section */}
       {formConfig.showDateTime && (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
             Date & Time
           </h3>
 
@@ -588,7 +588,7 @@ export function EventForm({
           <section className="space-y-4">
             {showLocation && (
               <>
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
                   Location
                 </h3>
                 <LocationPicker
@@ -613,7 +613,7 @@ export function EventForm({
                 ) : (
                   <div>
                     <label className="text-base font-medium text-[#2D2C3C]">
-                      City <span className="text-red-500">*</span>
+                      City <span className="text-[#c9a34e]">*</span>
                     </label>
                     <input
                       type="text"
@@ -621,7 +621,7 @@ export function EventForm({
                       onChange={(e) => updateField("city", e.target.value)}
                       disabled={isSubmitting}
                       placeholder="City"
-                      className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                      className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm ${
                         fieldError("city") ? "border-red-500" : "border-gray-300"
                       }`}
                     />
@@ -633,7 +633,7 @@ export function EventForm({
 
                 <div className="w-full md:w-1/2">
                   <label className="text-base font-medium text-[#2D2C3C]">
-                    State <span className="text-red-500">*</span>
+                    State <span className="text-[#c9a34e]">*</span>
                   </label>
                   <input
                     type="text"
@@ -641,7 +641,7 @@ export function EventForm({
                     onChange={(e) => updateField("state", e.target.value)}
                     disabled={isSubmitting}
                     placeholder="e.g. TX"
-                    className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                    className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm ${
                       fieldError("state") ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -661,7 +661,7 @@ export function EventForm({
                     disabled={isSubmitting}
                     placeholder="12345"
                     maxLength={10}
-                    className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                    className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm ${
                       fieldError("zipCode") ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -674,7 +674,7 @@ export function EventForm({
 
             {showVirtual && (
               <>
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
                   Virtual Event Details
                 </h3>
                 <div className="w-full">
@@ -687,7 +687,7 @@ export function EventForm({
                     onChange={(e) => updateField("virtualLink", e.target.value)}
                     disabled={isSubmitting}
                     placeholder="https://zoom.us/j/..."
-                    className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                    className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm ${
                       fieldError("virtualLink") ? "border-red-500" : "border-gray-300"
                     }`}
                   />
@@ -704,8 +704,8 @@ export function EventForm({
       {/* Industries/Categories Section */}
       {formConfig.showIndustries && industries.length > 0 && (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-            Industries / Categories <span className="text-red-500">*</span>
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+            Industries / Categories <span className="text-[#c9a34e]">*</span>
           </h3>
 
           <div className="flex flex-wrap gap-2">
@@ -749,14 +749,14 @@ export function EventForm({
       {/* Contact Section */}
       {formConfig.showContact && (
         <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
             Contact Information
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-base font-medium text-[#2D2C3C]">
-                Email <span className="text-red-500">*</span>
+                Email <span className="text-[#c9a34e]">*</span>
               </label>
               <input
                 type="email"
@@ -764,7 +764,7 @@ export function EventForm({
                 onChange={(e) => updateField("email", e.target.value)}
                 disabled={isSubmitting}
                 placeholder="contact@example.com"
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm ${
                   fieldError("email") ? "border-red-500" : "border-gray-300"
                 } ${isSubmitting ? "bg-gray-100 cursor-not-allowed" : ""}`}
               />
@@ -783,7 +783,7 @@ export function EventForm({
                 onChange={(e) => updateField("phone", e.target.value)}
                 disabled={isSubmitting}
                 placeholder="(555) 123-4567"
-                className={`mt-1 w-full rounded-md border p-3 text-black shadow-sm ${
+                className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm ${
                   fieldError("phone") ? "border-red-500" : "border-gray-300"
                 } ${isSubmitting ? "bg-gray-100 cursor-not-allowed" : ""}`}
               />
@@ -818,7 +818,7 @@ export function EventForm({
 
         return (
         <section className="space-y-4">
-          <div className="border-b pb-2">
+          <div className="border-b-2 border-[#c9a34e]/30 pb-2">
             <h3 className="text-lg font-semibold text-gray-900">
               Event Flyer
             </h3>
