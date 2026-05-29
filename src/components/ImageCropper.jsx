@@ -82,12 +82,21 @@ export function ImageCropper({
   aspect = 1440 / 650,
   cropWidth = 1440,
   cropHeight = 650,
+  // Minimum acceptable SOURCE image dimensions. Decoupled from cropWidth/
+  // cropHeight so the cropper can accept an image smaller than the output
+  // crop size (it'll scale up — slightly lossy, but better than rejecting
+  // outright). Default falls back to cropWidth/cropHeight for backward
+  // compat with callers that don't pass these.
+  minWidth,
+  minHeight,
   title = "Crop Image",
   prefer2x = true,
   maxAllowedZoom = 3,
   minAllowedZoom = 0.1,
   styles = {},
 }) {
+  const effectiveMinWidth  = typeof minWidth  === "number" ? minWidth  : cropWidth;
+  const effectiveMinHeight = typeof minHeight === "number" ? minHeight : cropHeight;
   const DEFAULT_ZOOM = 1;
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
@@ -111,8 +120,12 @@ export function ImageCropper({
     const img = new Image();
     img.src = imageSrc;
     img.onload = () => {
-      if (img.width < cropWidth || img.height < cropHeight) {
-        onError?.(`Image is too small. Minimum size is ${cropWidth}x${cropHeight}px.`);
+      // Validate against the relaxed source-image minimum, not the crop
+      // output size. Lets users upload smaller-than-banner logos without
+      // hitting "Image is too small" when the file is in fact reasonable
+      // (e.g., a 400×400 org logo for a 1440×650 banner crop).
+      if (img.width < effectiveMinWidth || img.height < effectiveMinHeight) {
+        onError?.(`Image is too small. Minimum size is ${effectiveMinWidth}x${effectiveMinHeight}px.`);
         onCancel?.();
         return;
       }

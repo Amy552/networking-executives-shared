@@ -955,6 +955,14 @@ export function EventForm({
         aspect={1440 / 650}
         cropWidth={1440}
         cropHeight={650}
+        // Decouple SOURCE image minimums from the OUTPUT crop size so
+        // typical 400–1000px org logos aren't rejected as "too small."
+        // Matches the file-select minWidth/minHeight passed to the hook
+        // above. Smaller images scale up at crop time — slightly lossy
+        // for tiny inputs, but Ola/Mich would rather have something
+        // visible than nothing.
+        minWidth={400}
+        minHeight={200}
         title="Crop Event Image"
       />
     </div>
