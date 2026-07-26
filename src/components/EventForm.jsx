@@ -39,6 +39,15 @@ export function EventForm({
   eventTypes = [],
   onImageUpload,
   onImageError,
+  /*
+   * Sponsor logos (organizer perk, up to 2). AddEvent has been passing
+   * onSponsorLogoUpload and isOrganizer for a while, but this component never
+   * declared them — so the handler and the save logic existed while the form
+   * had no field at all. Live data confirmed it: 0 of 300 events had a sponsor
+   * logo, because there was no way to add one.
+   */
+  onSponsorLogoUpload,
+  isOrganizer = false,
   isSubmitting = false,
   config = {},
 }) {
@@ -943,6 +952,78 @@ export function EventForm({
         </section>
         );
       })()}
+
+      {/* Sponsor logos — organizer perk, up to 2.
+          Deliberately NOT on the event cards: those already carry a logo,
+          title, two badges, org, date and location, and small sponsor marks
+          there read as clutter. The detail page shows them under "Sponsored
+          By", which is where someone evaluating the event actually looks. */}
+      {isOrganizer && onSponsorLogoUpload && (
+        <section className="mt-8 space-y-4">
+          <h3 className="border-b-2 border-[#c9a34e]/30 pb-2 text-lg font-semibold text-gray-900">
+            Sponsor Logos
+          </h3>
+          <p className="text-sm text-gray-600">
+            Optional. Add up to two sponsor logos and they&apos;ll appear on your event page under
+            &ldquo;Sponsored By&rdquo;.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[0, 1].map((slot) => {
+              const existing = formData?.sponsorLogos?.[slot];
+              return (
+                <div key={slot}>
+                  <label className="text-base font-medium text-[#2D2C3C]">
+                    Sponsor {slot + 1}
+                  </label>
+                  {existing ? (
+                    <div className="mt-1 flex items-center gap-3 rounded-lg border border-gray-300 p-3">
+                      <img
+                        src={existing}
+                        alt={`Sponsor ${slot + 1}`}
+                        className="h-12 w-auto max-w-[120px] object-contain"
+                      />
+                      <button
+                        type="button"
+                        disabled={isSubmitting}
+                        onClick={() => {
+                          const next = [...(formData?.sponsorLogos || [])];
+                          next[slot] = "";
+                          updateField("sponsorLogos", next);
+                        }}
+                        className="ml-auto text-sm font-medium text-red-600 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <label
+                      className={`mt-1 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-5 text-center transition-colors hover:border-[#c9a34e] ${
+                        isSubmitting ? "pointer-events-none opacity-60" : ""
+                      }`}
+                    >
+                      <span className="text-sm text-gray-600">
+                        <span className="font-semibold">Click to upload</span> a logo
+                      </span>
+                      <span className="mt-1 text-xs text-gray-400">PNG or JPG</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={isSubmitting}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) onSponsorLogoUpload(file, slot);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Image Cropper Modal */}
       <ImageCropper
