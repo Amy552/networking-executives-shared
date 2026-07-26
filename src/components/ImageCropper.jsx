@@ -16,6 +16,14 @@ const getCroppedImg = async (
     cropWidth = 1440,
     cropHeight = 650,
     outputScale = 1,
+    // When true, the output canvas takes the SHAPE OF THE CROP instead of the
+    // fixed cropWidth × cropHeight. Required for free-form cropping: without
+    // it, drawImage squeezes a portrait crop into a 1440×650 canvas and the
+    // flyer comes out horizontally stretched.
+    preserveAspect = false,
+    // Long-edge cap for free-form output, so a 6000px phone photo doesn't
+    // become a 6000px upload.
+    maxEdge = 2000,
   } = {},
 ) => {
   const image = new Image();
@@ -25,8 +33,19 @@ const getCroppedImg = async (
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
 
-  const outputWidth = cropWidth * outputScale;
-  const outputHeight = cropHeight * outputScale;
+  let outputWidth;
+  let outputHeight;
+
+  if (preserveAspect) {
+    // Source pixels are copied close to 1:1, which is already sharp, so
+    // outputScale (the 2x retina trick) doesn't apply here.
+    const scale = Math.min(1, maxEdge / Math.max(pixelCrop.width, pixelCrop.height));
+    outputWidth = Math.max(1, Math.round(pixelCrop.width * scale));
+    outputHeight = Math.max(1, Math.round(pixelCrop.height * scale));
+  } else {
+    outputWidth = cropWidth * outputScale;
+    outputHeight = cropHeight * outputScale;
+  }
 
   canvas.width = outputWidth;
   canvas.height = outputHeight;
@@ -69,7 +88,11 @@ const getCroppedImg = async (
  * @param {string} props.imageSrc - Source image to crop
  * @param {function} props.onCropComplete - Callback with cropped file
  * @param {function} props.onCancel - Callback when cancelled
- * @param {number} props.aspect - Aspect ratio (default: 1440/650 for event banners)
+ * @param {number|null} props.aspect - Aspect ratio. Pass `null` for FREE-FORM
+ *   cropping, which keeps the crop's own shape instead of forcing a ratio.
+ *   Default 1440/650 is kept for backward compatibility with existing callers.
+ * @param {boolean} props.allowAspectToggle - Show Free / Banner / Square /
+ *   Portrait preset buttons so the uploader picks the shape.
  * @param {string} props.title - Modal title
  * @param {Object} props.styles - Custom style overrides
  */
@@ -80,6 +103,7 @@ export function ImageCropper({
   onCancel,
   onError,
   aspect = 1440 / 650,
+  allowAspectToggle = false,
   cropWidth = 1440,
   cropHeight = 650,
   // Minimum acceptable SOURCE image dimensions. Decoupled from cropWidth/
@@ -95,8 +119,40 @@ export function ImageCropper({
   minAllowedZoom = 0.1,
   styles = {},
 }) {
-  const effectiveMinWidth  = typeof minWidth  === "number" ? minWidth  : cropWidth;
-  const effectiveMinHeight = typeof minHeight === "number" ? minHeight : cropHeight;
+  /*
+   * aspect={null} means "keep the whole image".
+   *
+   * NOTE: react-easy-crop (5.5.0) has NO free-form mode — its `aspect` prop
+   * defaults to 4/3, so passing undefined silently crops to 4:3 rather than
+   * letting the user drag any shape. So "whole image" is implemented as
+   * "aspect = the source image's own ratio": the crop frame matches the
+   * flyer's shape, which lets the user keep 100% of it. Same outcome for our
+   * purposes, and it works within the library instead of against it.
+   */
+  const [activeAspect, setActiveAspect] = useState(aspect);
+  const [naturalAspect, setNaturalAspect] = useState(null);
+  useEffect(() => { setActiveAspect(aspect); }, [aspect]);
+
+  const isFreeform = activeAspect == null;
+  // Fall back to the fixed banner ratio only until the image has loaded.
+  const resolvedAspect = isFreeform
+    ? (naturalAspect ?? cropWidth / cropHeight)
+    : activeAspect;
+
+  /*
+   * Minimum SOURCE dimensions. A fixed 1440×650 floor is wrong for free-form
+   * cropping: a perfectly good portrait flyer at 1080×1350 fails the width
+   * check and gets rejected outright. When free, fall back to a single
+   * short-edge floor instead of a width AND height floor.
+   */
+  const FREEFORM_MIN_EDGE = 400;
+  const effectiveMinWidth = typeof minWidth === "number"
+    ? minWidth
+    : (isFreeform ? FREEFORM_MIN_EDGE : cropWidth);
+  const effectiveMinHeight = typeof minHeight === "number"
+    ? minHeight
+    : (isFreeform ? FREEFORM_MIN_EDGE : cropHeight);
+
   const DEFAULT_ZOOM = 1;
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
@@ -114,6 +170,7 @@ export function ImageCropper({
       setMaxZoom(maxAllowedZoom);
       setOutputScale(1);
       setCroppedAreaPixels(null);
+      setNaturalAspect(null);
       return;
     }
 
@@ -138,11 +195,16 @@ export function ImageCropper({
       const oneToOneMaxZoom = Math.min(img.width / outputWidth, img.height / outputHeight);
       const calculatedMaxZoom = Math.max(DEFAULT_ZOOM, Math.min(maxAllowedZoom, oneToOneMaxZoom));
 
+      // Free-form has no target box to fit into, so just let the user zoom
+      // all the way out to the whole image.
       const widthRatio = cropWidth / img.width;
       const heightRatio = cropHeight / img.height;
       const fitInsideZoom = Math.min(widthRatio, heightRatio);
-      const calculatedMinZoom = Math.max(minAllowedZoom, Math.min(fitInsideZoom, DEFAULT_ZOOM));
+      const calculatedMinZoom = isFreeform
+        ? minAllowedZoom
+        : Math.max(minAllowedZoom, Math.min(fitInsideZoom, DEFAULT_ZOOM));
 
+      setNaturalAspect(img.width / img.height);
       setOutputScale(calculatedOutputScale);
       setMinZoom(calculatedMinZoom);
       setMaxZoom(Math.max(calculatedMinZoom, calculatedMaxZoom));
@@ -191,6 +253,7 @@ export function ImageCropper({
         cropWidth,
         cropHeight,
         outputScale,
+        preserveAspect: isFreeform,
       });
       onCropComplete(croppedImage);
     } catch (error) {
@@ -229,12 +292,43 @@ export function ImageCropper({
       <div className={defaultStyles.modal}>
         <h2 className={defaultStyles.title}>{title}</h2>
 
+        {allowAspectToggle && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-gray-500">Shape:</span>
+            {[
+              { label: "Whole image", value: null },
+              { label: "Banner", value: 1440 / 650 },
+              { label: "Square", value: 1 },
+              { label: "Portrait", value: 4 / 5 },
+            ].map((preset) => {
+              const on = preset.value == null
+                ? activeAspect == null
+                : Math.abs((activeAspect ?? 0) - preset.value) < 0.001;
+              return (
+                <button
+                  key={preset.label}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setActiveAspect(preset.value)}
+                  className={`rounded-full border px-3 py-1 text-xs font-[500] transition-colors ${
+                    on
+                      ? "border-[#1a254a] bg-[#1a254a] text-white"
+                      : "border-gray-300 bg-white text-gray-700 hover:border-[#c9a34e]"
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className={defaultStyles.cropperContainer}>
           <Cropper
             image={imageSrc}
             crop={crop}
             zoom={zoom}
-            aspect={aspect}
+            aspect={resolvedAspect}
             onCropChange={onCropChange}
             onZoomChange={onZoomChange}
             onCropComplete={onCropCompleteCallback}

@@ -1032,7 +1032,12 @@ export function EventForm({
         onCropComplete={handleCropComplete}
         onCancel={imageCropper.closeCropper}
         onError={onImageError}
-        aspect={1440 / 650}
+        // null = keep the whole image (resolves to the source's own ratio).
+        // Was a forced 1440/650, which made anyone uploading a portrait flyer
+        // throw away roughly two thirds of it before it ever reached the site.
+        // Banner is still one click away via the shape presets.
+        aspect={null}
+        allowAspectToggle
         cropWidth={1440}
         cropHeight={650}
         // Decouple SOURCE image minimums from the OUTPUT crop size so
