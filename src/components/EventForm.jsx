@@ -436,7 +436,7 @@ export function EventForm({
                 value={formData?.eventLink || ""}
                 onChange={(e) => updateField("eventLink", e.target.value)}
                 disabled={isSubmitting}
-                placeholder="https://eventbrite.com/..."
+                placeholder="https://your-site.com/register"
                 className={`mt-1 w-full rounded-lg border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                   fieldError("eventLink") ? "border-red-500" : "border-gray-300"
                 }`}
