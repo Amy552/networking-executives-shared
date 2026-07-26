@@ -458,7 +458,7 @@ export function EventForm({
 
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">
-              Pricing <span className="text-[#c9a34e]">*</span>
+              Admission <span className="text-[#c9a34e]">*</span>
             </label>
             <select
               value={formData?.eventPricing || ""}
@@ -468,7 +468,7 @@ export function EventForm({
                 fieldError("eventPricing") ? "border-red-500" : "border-gray-300"
               }`}
             >
-              <option value="" disabled hidden>Select Pricing</option>
+              <option value="" disabled hidden>Is it free or paid?</option>
               <option value="Free">Free</option>
               <option value="Paid">Paid</option>
             </select>
@@ -480,7 +480,7 @@ export function EventForm({
           {/* Access & Invitation */}
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">
-              Access & Invitation <span className="text-[#c9a34e]">*</span>
+              Who can attend? <span className="text-[#c9a34e]">*</span>
             </label>
             <select
               value={formData?.eventInvitation || ""}
@@ -490,9 +490,9 @@ export function EventForm({
                 fieldError("eventInvitation") ? "border-red-500" : "border-gray-300"
               }`}
             >
-              <option value="" disabled hidden>Select Access & Invitation</option>
-              <option value="Open Access">Open Access</option>
-              <option value="Limited Access">Limited Access (Guest or First-Time)</option>
+              <option value="" disabled hidden>Select who can attend</option>
+              <option value="Open Access">Open to everyone</option>
+              <option value="Limited Access">Guests and first-timers welcome</option>
               <option value="Application required">Application required</option>
               <option value="Members only">Members only</option>
               <option value="Executives only">Executives only</option>
