@@ -293,8 +293,8 @@ export function EventForm({
     <div className="space-y-6">
       {/* Organization Section */}
       {formConfig.showOrganization && (
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+        <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
             Organization Information
           </h3>
 
@@ -378,8 +378,8 @@ export function EventForm({
 
       {/* Event Details Section */}
       {formConfig.showEventDetails && (
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+        <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
             Event Details
           </h3>
 
@@ -424,6 +424,8 @@ export function EventForm({
             )}
           </div>
 
+          {/* Long-form input, so it takes the whole row rather than half. */}
+          <div className="lg:col-span-2">
           <RichTextEditor
             value={formData?.description || ""}
             onChange={(html) => updateField("description", html)}
@@ -433,6 +435,7 @@ export function EventForm({
             maxLength={5000}
             layout={formConfig.layout}
           />
+          </div>
 
           {/* Event Link */}
           {formConfig.showEventLink && (
@@ -460,8 +463,8 @@ export function EventForm({
 
       {/* Event Options Section (Pricing, Format, Invitation) */}
       {formConfig.showEventOptions && (
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+        <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
             Event Options
           </h3>
 
@@ -553,11 +556,12 @@ export function EventForm({
 
       {/* Date & Time Section */}
       {formConfig.showDateTime && (
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+        <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
             Date & Time
           </h3>
 
+          <div className="lg:col-span-2">
           <EventDateTimeRange
             startDate={formData?.startDateTime}
             endDate={formData?.endDateTime}
@@ -571,9 +575,10 @@ export function EventForm({
             endRequired
             layout={formConfig.layout}
           />
+          </div>
 
           {formData?.timezone && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 lg:col-span-2">
               Timezone: {formData.timeZoneAbbr || formData.timezone}
             </div>
           )}
@@ -593,12 +598,13 @@ export function EventForm({
         if (!showLocation && !showVirtual) return null;
 
         return (
-          <section className="space-y-4">
+          <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
             {showLocation && (
               <>
-                <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
                   Location
                 </h3>
+                <div className="lg:col-span-2">
                 <LocationPicker
                   value={formData?.address || ""}
                   onChange={handleLocationSelect}
@@ -607,6 +613,7 @@ export function EventForm({
                   error={fieldError("address")}
                   layout={formConfig.layout}
                 />
+                </div>
 
                 {cities.length > 0 ? (
                   <CityPicker
@@ -639,7 +646,7 @@ export function EventForm({
                   </div>
                 )}
 
-                <div className="w-full md:w-1/2">
+                <div>
                   <label className="text-base font-medium text-[#2D2C3C]">
                     State <span className="text-[#c9a34e]">*</span>
                   </label>
@@ -658,7 +665,7 @@ export function EventForm({
                   )}
                 </div>
 
-                <div className="w-full md:w-1/2">
+                <div>
                   <label className="text-base font-medium text-[#2D2C3C]">
                     Zip Code
                   </label>
@@ -682,7 +689,7 @@ export function EventForm({
 
             {showVirtual && (
               <>
-                <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
                   Virtual Event Details
                 </h3>
                 <div className="w-full">
@@ -711,12 +718,12 @@ export function EventForm({
 
       {/* Industries/Categories Section */}
       {formConfig.showIndustries && industries.length > 0 && (
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+        <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
             Industries / Categories <span className="text-[#c9a34e]">*</span>
           </h3>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 lg:col-span-2">
             {industries.map((industry) => {
               const industryValue = typeof industry === "string" ? industry : industry.value || industry.name;
               const industryLabel = typeof industry === "string" ? industry : industry.label || industry.name || industry.value;
@@ -745,10 +752,10 @@ export function EventForm({
           </div>
 
           {fieldError("industries") && (
-            <p className="mt-1 text-sm text-red-500">{fieldError("industries")}</p>
+            <p className="mt-1 text-sm text-red-500 lg:col-span-2">{fieldError("industries")}</p>
           )}
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 lg:col-span-2">
             Selected: {(formData?.industries || []).length} / {MAX_INDUSTRIES} (max)
           </p>
         </section>
@@ -756,12 +763,12 @@ export function EventForm({
 
       {/* Contact Section */}
       {formConfig.showContact && (
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2">
+        <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
+          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
             Contact Information
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:col-span-2">
             <div>
               <label className="text-base font-medium text-[#2D2C3C]">
                 Email <span className="text-[#c9a34e]">*</span>
