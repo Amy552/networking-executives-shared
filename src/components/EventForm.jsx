@@ -440,9 +440,21 @@ export function EventForm({
           {/* Event Link */}
           {formConfig.showEventLink && (
             <div className="w-full">
+              {/*
+                Marked optional 2026-07-30 (Amy). The placeholder implied an
+                organizer was expected to have a registration page of their own,
+                and an organization without an events website had no way to tell
+                that leaving it blank was allowed. Saying what happens when it is
+                empty matters more than the word "optional" on its own, so the
+                helper line names the outcome.
+              */}
               <label className="text-base font-medium text-[#2D2C3C]">
-                Event Registration Link
+                Event Registration Link <span className="font-normal text-gray-500">(optional)</span>
               </label>
+              <p className="mt-1 text-sm text-gray-500">
+                Only if people register somewhere else, such as your own site. Leave it blank and the
+                event shows as a listing with the details, no registration button.
+              </p>
               <input
                 type="url"
                 value={formData?.eventLink || ""}
