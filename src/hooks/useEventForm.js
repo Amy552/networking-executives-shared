@@ -271,6 +271,40 @@ export function useEventForm(initialData = null, options = {}) {
     }
 
     setErrors(newErrors);
+
+    /*
+     * Reveal the errors this call just produced.
+     *
+     * getError() returns a message only when the field is also `touched`, so
+     * setting `errors` alone leaves every message invisible. The hook's own
+     * handleSubmit marked all fields touched before validating, but AddEvent.jsx
+     * has its OWN handleSubmit that calls validate() directly and never touched
+     * anything. The result on /add-event, reproduced on production 2026-07-30:
+     *
+     *   click Submit -> toast "Please fill in all required fields"
+     *                -> ZERO fields highlighted, nothing marked, and the
+     *                   scroll-to-first-error finds no .text-red-500 to scroll
+     *                   to, so the page does not even move.
+     *
+     * The organizer is told something is wrong and given no way to discover
+     * what. That is indistinguishable from a broken Submit button, and it is
+     * what two people reported as "submit is not working".
+     *
+     * Marking touched HERE rather than in each caller means validation and the
+     * visibility of its results cannot drift apart again — any consumer of this
+     * hook, including the admin panel's edit modal, gets visible errors for
+     * free. `touched` keeps its meaning for on-blur feedback; validate() only
+     * runs on submit (never on change), so nothing lights up prematurely.
+     */
+    setTouched(prev => {
+      const next = { ...prev };
+      for (const key of Object.keys(formData)) next[key] = true;
+      // Errors can name a key that is not a formData field, so make sure those
+      // are marked too or their message would stay hidden.
+      for (const key of Object.keys(newErrors)) next[key] = true;
+      return next;
+    });
+
     return Object.keys(newErrors).length === 0;
   }, [formData, isAdmin]);
 
