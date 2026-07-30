@@ -53,10 +53,31 @@ export function EventDateTimePicker({
         <label className="text-base font-medium text-[#2D2C3C] mb-1">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
+        {/*
+          showTimeSelect, NOT showTimeInput. Amy reported on 2026-07-30 that
+          clicking the minutes "keeps flipping back" and will not accept a
+          change, and showTimeInput is why: it renders a controlled
+          <input type="time"> whose value is rewritten from `selected` on every
+          render. Typing the first digit of a minute produces a partial value,
+          react-datepicker cannot parse it, so it re-renders the previous value
+          and the caret snaps back to the hour. The field fights every keystroke.
+          It is worse before a date is picked, which is the state in her
+          screenshot: with `selected` null there is no date for a time to attach
+          to at all.
+
+          A 15 minute select removes the whole class of problem, because there is
+          nothing to type. Events start on quarter hours in practice, and times
+          that do not (scraped events, mostly) are written programmatically and
+          never pass through this control. react-datepicker still shows an
+          off-interval selected time in the field, so editing such an event
+          displays its real time and only snaps if the organizer actively picks
+          a new one.
+        */}
         <DatePicker
           selected={dateValue}
           onChange={handleChange}
-          showTimeInput={showTime}
+          showTimeSelect={showTime}
+          timeIntervals={15}
           isClearable
           shouldCloseOnSelect={!showTime}
           showIcon

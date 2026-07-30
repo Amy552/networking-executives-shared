@@ -451,9 +451,25 @@ export function EventForm({
               <label className="text-base font-medium text-[#2D2C3C]">
                 Event Registration Link <span className="font-normal text-gray-500">(optional)</span>
               </label>
+              {/*
+                Rewritten 2026-07-30. The first attempt said "only if people
+                register somewhere else", which assumes the reader knows there is
+                a HERE to be elsewhere from. They often do not: registration is
+                entitlement-gated, so a free organizer has never seen that section
+                and has no idea we can take signups at all. "Somewhere else" was
+                therefore relative to something they had never been shown.
+
+                This version is self-contained. It describes the two situations in
+                the organizer's own terms, sign-ups happen on your page or there
+                are none, without depending on knowledge of our feature set. The
+                upsell is not repeated here; the callout at the top of the form
+                already introduces what an organizer account adds, and saying it
+                twice on one screen reads as pressure.
+              */}
               <p className="mt-1 text-sm text-gray-500">
-                Only if people register somewhere else, such as your own site. Leave it blank and the
-                event shows as a listing with the details, no registration button.
+                If people sign up on your own site or a ticketing page, paste that link here. If
+                there is nothing to sign up for, leave it blank and the event shows as a listing
+                with the details.
               </p>
               <input
                 type="url"
@@ -517,7 +533,7 @@ export function EventForm({
               <option value="" disabled hidden>Select who can attend</option>
               <option value="Open Access">Open to everyone</option>
               <option value="Limited Access">Guests and first-timers welcome</option>
-              <option value="Application required">Application required</option>
+              <option value="Application required">Approval required</option>
               <option value="Members only">Members only</option>
             </select>
             {fieldError("eventInvitation") && (
