@@ -133,10 +133,44 @@ export async function compressImage(file, options = "event") {
     throw new Error(`Unknown compression preset: ${options}`);
   }
 
-  // Dynamically import browser-image-compression
-  const imageCompression = await import("browser-image-compression").then(
-    (m) => m.default
-  );
+  // browser-image-compression is its own lazily-loaded chunk, and this import
+  // USED TO SIT OUTSIDE the try below, so a failure to fetch it threw straight
+  // out of compressImage. That made a routine deploy break image upload for
+  // anyone who already had the form open:
+  //
+  //   1. The tab loaded build N and holds build N's chunk names.
+  //   2. Build N+1 ships. The old hashed chunk file no longer exists.
+  //   3. The organizer picks their event flyer.
+  //   4. This import 404s and throws.
+  //   5. The caller reports "Error uploading image. Please try again." —
+  //      advice that can never work, because that chunk is gone for this tab
+  //      until a full reload. No flyer means no submitted event.
+  //
+  // A render-time chunk error is caught by ErrorBoundary, which reloads once
+  // and shows the "Updating to the latest version" splash. This one is thrown
+  // from an async event handler, so the boundary never sees it and none of that
+  // recovery runs. Reloading from here would be the wrong cure anyway: it would
+  // throw away a half-filled event form.
+  //
+  // So degrade instead. Compression is an optimization, not a requirement --
+  // note the catch below already returns the original file when compression
+  // itself fails. validateImageFile caps uploads at MAX_UPLOAD_SIZE (10MB)
+  // before we get here, so an uncompressed original is bounded, merely slower
+  // to upload. Losing compression is a far smaller failure than blocking the
+  // submission entirely.
+  let imageCompression;
+  try {
+    imageCompression = await import("browser-image-compression").then(
+      (m) => m.default
+    );
+  } catch (error) {
+    console.warn(
+      "Could not load the image compressor, uploading the original file instead. " +
+        "Usually means a new build shipped while this page was open.",
+      error?.message || error
+    );
+    return file;
+  }
 
   try {
     const compressedFile = await imageCompression(file, compressionOptions);
