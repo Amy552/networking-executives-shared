@@ -185,9 +185,26 @@ export const generateBulkUploadTemplate = async (ExcelJS, options = {}) => {
   // Column widths
   const colWidths = [45, 22, 26, 22, 26, 30, 35, 18, 12, 10, 18, 25, 30, 50];
 
+  // Columns whose values MUST stay as literal strings, not be auto-converted
+  // by Excel/Sheets to their default locale format. Amy 2026-07-31: a user
+  // typed 2026-03-15 into a Start Date cell and Excel silently reformatted
+  // it to 10/8/26, which then failed the validator's YYYY-MM-DD regex on
+  // upload. The header even says the format required, but a General-format
+  // cell doesn't care what the header says. Force numFmt="@" (text) on
+  // date + time columns so whatever the user types stays literal.
+  const TEXT_FORCED_COLS = new Set([
+    "Start Date * (YYYY-MM-DD)",
+    "Start Time * (HH:MM or H:MM AM/PM)",
+    "End Date * (YYYY-MM-DD)",
+    "End Time * (HH:MM or H:MM AM/PM)",
+  ]);
+
   headers.forEach((header, idx) => {
     const col = dataSheet.getColumn(idx + 1);
     col.width = colWidths[idx];
+    if (TEXT_FORCED_COLS.has(header)) {
+      col.numFmt = "@"; // "@" = plain text; blocks date/number auto-conversion
+    }
   });
 
   // Add header row with styling
