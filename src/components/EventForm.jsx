@@ -862,12 +862,19 @@ export function EventForm({
         return (
         <section className="space-y-4">
           <div className="border-b-2 border-[#c9a34e]/30 pb-2">
+            {/*
+              Label renamed 2026-07-31 (Amy) from "Event Flyer" to "Event Banner".
+              The image renders as the event card and page header — a horizontal
+              banner, not a printable portrait flyer. The Firestore field is
+              still called eventFlyerImage for historical/data-migration reasons;
+              only the user-facing label changed here.
+            */}
             <h3 className="text-lg font-semibold text-gray-900">
-              Event Flyer
+              Event Banner
             </h3>
             <p className="mt-1 text-sm text-gray-500">
               Optional — we'll use {companyName}'s logo on file by default.
-              Upload a custom image only when you have an event-specific design.
+              Upload a horizontal image when you have an event-specific design.
             </p>
           </div>
 
