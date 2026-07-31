@@ -47,8 +47,31 @@ export function useEventForm(initialData = null, options = {}) {
       setFormData((prev) => ({
         ...prev,
         organizationName: organizerData.organizationName || prev.organizationName,
+        /*
+         * `organizationWebsite` FIRST, because that is the key the organizer
+         * record actually uses.
+         *
+         * This read `organizerData.website || organizerData.organizationWeblink`
+         * and neither key exists on an organizers document. BecomeOrganizer
+         * writes `organizationWebsite` (see the organizerData object it builds),
+         * so both alternatives were undefined and the chain fell through to the
+         * empty previous value.
+         *
+         * The field is also rendered DISABLED on the add-event form, on the
+         * reasonable assumption that it is locked to the organization. So it was
+         * blank and uneditable at the same time: every event an organizer created
+         * carried no organization website, and there was no way to type one in.
+         * Verified against a live organizer record holding a real website while
+         * the form showed the field empty.
+         *
+         * The other two keys stay as fallbacks for any record written in a
+         * different shape, but the real one has to come first.
+         */
         organizationWeblink:
-          organizerData.website || organizerData.organizationWeblink || prev.organizationWeblink,
+          organizerData.organizationWebsite ||
+          organizerData.website ||
+          organizerData.organizationWeblink ||
+          prev.organizationWeblink,
         organizerId: organizerData.id || organizerData.organizerId || prev.organizerId,
         // Pre-populate contact email from organizer's business email
         email: organizerData.businessEmail || organizerData.email || prev.email,
