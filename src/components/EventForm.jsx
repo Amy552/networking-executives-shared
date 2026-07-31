@@ -1007,11 +1007,13 @@ export function EventForm({
           </h3>
           <p className="text-sm text-gray-600">
             Optional. Add up to two sponsor logos and they&apos;ll appear on your event page under
-            &ldquo;Sponsored By&rdquo;.
+            &ldquo;Sponsored By&rdquo;. Each logo can carry an optional 1-2 sentence description below it —
+            useful when a sponsor is paying for visibility, not just a logo lineup.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             {[0, 1].map((slot) => {
               const existing = formData?.sponsorLogos?.[slot];
+              const description = formData?.sponsorDescriptions?.[slot] || "";
               return (
                 <div key={slot}>
                   <label className="text-base font-medium text-[#2D2C3C]">
@@ -1031,6 +1033,11 @@ export function EventForm({
                           const next = [...(formData?.sponsorLogos || [])];
                           next[slot] = "";
                           updateField("sponsorLogos", next);
+                          // Clear the parallel description too — a lone
+                          // paragraph with no logo is worse than nothing.
+                          const nextDesc = [...(formData?.sponsorDescriptions || [])];
+                          nextDesc[slot] = "";
+                          updateField("sponsorDescriptions", nextDesc);
                         }}
                         className="ml-auto text-sm font-medium text-red-600 hover:underline"
                       >
@@ -1059,6 +1066,37 @@ export function EventForm({
                         }}
                       />
                     </label>
+                  )}
+                  {/*
+                    Description only offered once a logo is present. A
+                    textarea sitting under an empty upload zone reads as
+                    "start typing here" and confuses the primary action.
+                    Amy 2026-07-31: 1-2 sentence limit is enforced by the
+                    280-char cap; the copy uses "1-2 sentences" so the
+                    guidance sits next to the field rather than in a
+                    validation message.
+                  */}
+                  {existing && (
+                    <div className="mt-2">
+                      <label className="text-xs font-medium text-gray-600">
+                        Description <span className="font-normal text-gray-400">(optional, 1-2 sentences)</span>
+                      </label>
+                      <textarea
+                        value={description}
+                        onChange={(e) => {
+                          const next = [...(formData?.sponsorDescriptions || [])];
+                          next[slot] = e.target.value;
+                          updateField("sponsorDescriptions", next);
+                        }}
+                        rows={2}
+                        maxLength={280}
+                        placeholder="e.g. National sponsor of the CFO Alliance. HR & payroll technology built for private-equity backed growth."
+                        className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#c9a34e] focus:outline-none"
+                      />
+                      <div className="mt-1 flex justify-end text-[11px] text-gray-500">
+                        {description.length}/280
+                      </div>
+                    </div>
                   )}
                 </div>
               );
