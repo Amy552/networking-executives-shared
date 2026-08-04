@@ -611,6 +611,49 @@ export function EventForm({
             Date & Time
           </h3>
 
+          {/*
+            Sits ABOVE the picker on purpose. Times entered here are
+            interpreted as venue-local — a 6 PM pick becomes 6 PM in
+            the venue's zone regardless of where the organizer is
+            sitting when they type it. Every event tool does this;
+            the ambiguity is only in whether the organizer KNOWS
+            that's what's happening. Before the address is
+            geocoded the zone is unknown, so we say so and prompt
+            them to enter the address to lock it in.
+          */}
+          <div className="lg:col-span-2 rounded-md bg-[#c9a34e]/10 px-3 py-2 text-[13px] text-[#1a254a]">
+            {(() => {
+              const tz = formData?.timezone;
+              if (!tz) {
+                return (
+                  <>
+                    Times below are read as <strong>venue-local time</strong> — enter the venue address
+                    below and we'll show the confirmed time zone here.
+                  </>
+                );
+              }
+              let pretty = tz;
+              try {
+                const parts = new Intl.DateTimeFormat(undefined, {
+                  timeZone: tz,
+                  timeZoneName: "long",
+                }).formatToParts(new Date());
+                pretty = parts.find((p) => p.type === "timeZoneName")?.value || tz;
+              } catch {
+                // Intl.DateTimeFormat throws on unrecognised zone IDs. Fall
+                // back to whatever the stored value was so the hint still
+                // says SOMETHING useful.
+              }
+              const abbr = formData?.timeZoneAbbr;
+              return (
+                <>
+                  Times below are in <strong>{pretty}</strong>
+                  {abbr ? ` (${abbr})` : ""} — this is how attendees will see them on the event page.
+                </>
+              );
+            })()}
+          </div>
+
           <div className="lg:col-span-2">
           <EventDateTimeRange
             startDate={formData?.startDateTime}
@@ -626,12 +669,6 @@ export function EventForm({
             layout={formConfig.layout}
           />
           </div>
-
-          {formData?.timezone && (
-            <div className="text-sm text-gray-600 lg:col-span-2">
-              Timezone: {formData.timeZoneAbbr || formData.timezone}
-            </div>
-          )}
         </section>
       )}
 
