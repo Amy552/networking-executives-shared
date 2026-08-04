@@ -244,8 +244,13 @@ export function EventForm({
       /\.(png|jpe?g|gif|webp|heic|heif)$/i.test(droppedFile.name || "");
     if (looksLikeImage) {
       handleImageSelect({ target: { files: [droppedFile] } });
+    } else if (typeof onImageError === "function") {
+      // Route through the same channel the file-picker uses, so the
+      // organizer gets a visible signal instead of a silently-
+      // swallowed drop. Used to just no-op.
+      onImageError({ message: "That file doesn't look like an image. Try a PNG, JPG, WEBP, or HEIC." });
     }
-  }, [handleImageSelect]);
+  }, [handleImageSelect, onImageError]);
 
   // Handle cropped image
   const handleCropComplete = useCallback(async (croppedFile) => {
