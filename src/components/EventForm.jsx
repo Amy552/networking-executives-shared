@@ -634,10 +634,22 @@ export function EventForm({
               }
               let pretty = tz;
               try {
+                // Resolve the tz name against the EVENT'S date, not
+                // today. Using new Date() meant a January event picked
+                // in August rendered as "Central Daylight Time (CST)"
+                // — self-contradicting, since the event page will read
+                // it as CST. Fall back to today only when no start
+                // date has been picked yet.
+                const reference = (() => {
+                  const raw = formData?.startDateTime;
+                  if (!raw) return new Date();
+                  const d = raw instanceof Date ? raw : new Date(raw);
+                  return isNaN(d.getTime()) ? new Date() : d;
+                })();
                 const parts = new Intl.DateTimeFormat(undefined, {
                   timeZone: tz,
                   timeZoneName: "long",
-                }).formatToParts(new Date());
+                }).formatToParts(reference);
                 pretty = parts.find((p) => p.type === "timeZoneName")?.value || tz;
               } catch {
                 // Intl.DateTimeFormat throws on unrecognised zone IDs. Fall

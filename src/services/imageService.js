@@ -214,7 +214,26 @@ export async function compressImage(file, options = "event") {
     return compressedFile;
   } catch (error) {
     console.error("Error compressing image:", error);
-    // Return original file if compression fails
+    // Special-case HEIC/HEIF failures. browser-image-compression
+    // decodes via <canvas>, which only Safari 17+ can do for HEIC —
+    // Chrome, Firefox, and Android WebView all fail decode and land
+    // here. The old behavior returned the original file, which
+    // uploaded raw HEIC bytes to Storage and rendered as a broken
+    // image for every non-Safari attendee on the event page. Better
+    // to fail loud with an actionable message than to ship an event
+    // with a visibly broken flyer.
+    const looksHeic =
+      /^image\/(heic|heif)/i.test(file?.type || "") ||
+      /\.(heic|heif)$/i.test(file?.name || "");
+    if (looksHeic) {
+      const err = new Error(
+        "This browser can't convert HEIC photos. Open the photo in Preview or the Photos app and export it as JPG, then try again.",
+      );
+      err.code = "heic-decode-unsupported";
+      throw err;
+    }
+    // For any other format, degrade to uploading the original file
+    // as before — a JPEG that failed to compress is still a JPEG.
     return file;
   }
 }
@@ -383,6 +402,11 @@ export async function uploadImageSimple(file, path = "events", options = {}) {
     return downloadURL;
   } catch (error) {
     console.error("Error uploading image:", error);
+    // HEIC-decode-unsupported carries a user-actionable message.
+    // Rethrow so the caller can toast that specific text instead of
+    // the generic "try a smaller file" one, which is misleading —
+    // the file size isn't the problem.
+    if (error?.code === "heic-decode-unsupported") throw error;
     return null;
   }
 }
