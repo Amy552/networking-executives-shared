@@ -52,6 +52,10 @@ export const COMPRESSION_PRESETS = {
 
 /**
  * Allowed image MIME types
+ * HEIC/HEIF are included because iPhone camera roll defaults to
+ * HEIC and iOS Safari can decode it natively. compressImage
+ * transcodes to image/jpeg on the way out via the "event" preset,
+ * so what Firestore actually sees is always JPEG bytes.
  */
 export const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
@@ -59,7 +63,34 @@ export const ALLOWED_IMAGE_TYPES = [
   "image/png",
   "image/gif",
   "image/webp",
+  "image/heic",
+  "image/heif",
+  "image/heic-sequence",
+  "image/heif-sequence",
 ];
+
+/**
+ * Filename-extension fallback for pickers/paths that hand back
+ * a File with an empty `type`. iPhone Share Sheet and AirDrop
+ * paths do this for HEIC, and some Safari builds for .jpg from
+ * the Files app.
+ */
+const IMAGE_MIME_BY_EXT = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+  heic: "image/heic",
+  heif: "image/heif",
+};
+export function resolveImageContentType(file) {
+  if (!file) return null;
+  if (typeof file.type === "string" && ALLOWED_IMAGE_TYPES.includes(file.type)) return file.type;
+  const name = typeof file.name === "string" ? file.name : "";
+  const ext = name.split(".").pop()?.toLowerCase() || "";
+  return IMAGE_MIME_BY_EXT[ext] || null;
+}
 
 /**
  * Maximum file size before compression (10MB)
@@ -100,10 +131,16 @@ export function validateImageFile(file) {
     return { valid: false, error: "No file provided" };
   }
 
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+  // Fall back to filename extension when the browser hands back a
+  // File with empty `type` (iPhone Share Sheet, AirDrop, some
+  // Safari drag-drop paths). resolveImageContentType returns null
+  // only when neither the mime nor the extension look like a
+  // supported image.
+  const resolvedType = resolveImageContentType(file);
+  if (!resolvedType) {
     return {
       valid: false,
-      error: `Invalid file type. Allowed types: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+      error: "That doesn't look like an image (JPEG, PNG, GIF, WEBP, or HEIC).",
     };
   }
 

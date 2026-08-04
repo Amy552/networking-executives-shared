@@ -185,7 +185,21 @@ export function EventForm({
   // Handle image file selection
   const handleImageSelect = useCallback((e) => {
     imageCropper.handleFileSelect(e, {
-      allowedTypes: ["image/png", "image/jpeg", "image/jpg"],
+      // Match imageService.ALLOWED_IMAGE_TYPES so an iPhone HEIC or
+      // a WEBP banner doesn't get silently refused here. Compression
+      // in the upload path transcodes to JPEG before Storage ever
+      // sees it.
+      allowedTypes: [
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/gif",
+        "image/webp",
+        "image/heic",
+        "image/heif",
+        "image/heic-sequence",
+        "image/heif-sequence",
+      ],
       // Relaxed minimums — typical org logos are 500-1000px wide; the
       // previous 1440x650 minimum silently rejected those. We use
       // object-contain rendering, so a smaller image just scales down
@@ -220,7 +234,15 @@ export function EventForm({
     e.stopPropagation();
     setIsDragging(false);
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && (droppedFile.type === "image/png" || droppedFile.type === "image/jpeg" || droppedFile.type === "image/jpg")) {
+    if (!droppedFile) return;
+    // Accept anything that looks like an image, including HEIC and
+    // files with empty `type` (macOS drop-from-Photos, some Safari
+    // paths). handleImageSelect + imageCropper's allowedTypes will
+    // do the real filtering, so this only needs a coarse sniff.
+    const looksLikeImage =
+      (droppedFile.type && droppedFile.type.startsWith("image/")) ||
+      /\.(png|jpe?g|gif|webp|heic|heif)$/i.test(droppedFile.name || "");
+    if (looksLikeImage) {
       handleImageSelect({ target: { files: [droppedFile] } });
     }
   }, [handleImageSelect]);
