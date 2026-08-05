@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Cropper from "react-easy-crop";
 
 /**
@@ -162,6 +162,32 @@ export function ImageCropper({
   const [sourceMimeType, setSourceMimeType] = useState("image/jpeg");
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  /*
+   * Snap back to a clean starting position whenever the user clicks a
+   * different shape (Whole image / Banner / Square / Portrait). Without
+   * this, the shape button only changes the crop-frame ratio; the zoom
+   * and offset stay wherever the previous shape left them, so an
+   * organizer picking Banner after fiddling under Square would still
+   * see a mis-fitting frame and have to re-drag. Skip the first render
+   * — the main load effect below already establishes initial state;
+   * this effect only fires on subsequent shape switches. Amy 2026-08-05.
+   */
+  const shapeInitDoneRef = useRef(false);
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset the skip-first-render latch so a subsequent open starts fresh.
+      shapeInitDoneRef.current = false;
+      return;
+    }
+    if (!shapeInitDoneRef.current) {
+      shapeInitDoneRef.current = true;
+      return;
+    }
+    setZoom(DEFAULT_ZOOM);
+    setCrop({ x: 0, y: 0 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAspect, isOpen]);
 
   useEffect(() => {
     if (!isOpen || !imageSrc) {
