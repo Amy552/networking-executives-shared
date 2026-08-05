@@ -551,6 +551,49 @@ export function EventForm({
             )}
           </div>
 
+          {/*
+            Payment link + instructions, shown only when the organizer picks
+            Paid. Networking Executives doesn't process ticket payments, so
+            these fields are how the organizer pipes their own payment
+            mechanism (Stripe payment link, Eventbrite, PayPal.me, at-the-
+            door) through to approved attendees. Rendered in the approval
+            email and on the ticket page after approval. Amy 2026-08-05.
+          */}
+          {formData?.eventPricing === "Paid" && (
+            <div className="w-full lg:col-span-2 rounded-md border border-[#c9a34e]/40 bg-[#c9a34e]/5 p-4">
+              <p className="mb-3 text-sm font-medium text-[#1a254a]">
+                How should approved attendees pay? <span className="text-gray-500 font-normal">(shared with them after approval)</span>
+              </p>
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <label className="mb-1 block text-[13px] text-[#2D2C3C]">Payment link</label>
+                  <input
+                    type="url"
+                    value={formData?.paymentUrl || ""}
+                    onChange={(e) => updateField("paymentUrl", e.target.value)}
+                    disabled={isSubmitting}
+                    placeholder="https://buy.stripe.com/..., https://www.eventbrite.com/..., https://paypal.me/..."
+                    className="w-full rounded-lg border border-gray-300 p-2.5 text-[13px] text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[13px] text-[#2D2C3C]">
+                    Payment instructions <span className="text-gray-500">(optional)</span>
+                  </label>
+                  <textarea
+                    value={formData?.paymentInstructions || ""}
+                    onChange={(e) => updateField("paymentInstructions", e.target.value)}
+                    disabled={isSubmitting}
+                    rows={2}
+                    maxLength={500}
+                    placeholder="Amount, deadline, or context. Example: $150 due 48h before the event. Venmo @foo with the confirmation code from your approval email."
+                    className="w-full resize-none rounded-lg border border-gray-300 p-2.5 text-[13px] text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Access & Invitation */}
           <div className="w-full">
             <label className="text-base font-medium text-[#2D2C3C]">

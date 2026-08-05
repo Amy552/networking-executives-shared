@@ -51,6 +51,15 @@ export const DEFAULT_EVENT = {
 
   // Event Options
   eventPricing: "",
+  // Only shown/used when eventPricing === "Paid". Networking Executives
+  // does not itself process ticket payments; the organizer collects
+  // externally (Stripe payment link, Eventbrite, PayPal.me, at the
+  // door). These two fields let them pipe that mechanism through to
+  // approved attendees at the moment they need it — approval email,
+  // confirmation, and ticket page — instead of the organizer sending a
+  // separate email. Amy 2026-08-05.
+  paymentUrl: "",
+  paymentInstructions: "",
   eventFormat: "", // In-Person, Virtual, Hybrid (display value)
   eventInvitation: "",
   eventHighlight: "", // Event type from eventTypes context
