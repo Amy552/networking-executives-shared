@@ -60,6 +60,17 @@ export const DEFAULT_EVENT = {
   // separate email. Amy 2026-08-05.
   paymentUrl: "",
   paymentInstructions: "",
+  // Reminder toggles. All three are ON by default so an organizer who
+  // never opens the setting still gets the platform's standard cadence:
+  // one week before, 24 hours before, and the day of. Any explicit false
+  // suppresses that individual reminder for THIS event. Absent field is
+  // treated as true so events created before this feature keep the full
+  // cadence. Only paid tiers actually send reminders, so on Free the
+  // toggles are visual state that becomes live if the org upgrades.
+  // Amy 2026-08-05.
+  reminderWeekEnabled: true,
+  reminder24hEnabled: true,
+  reminderDayOfEnabled: true,
   eventFormat: "", // In-Person, Virtual, Hybrid (display value)
   eventInvitation: "",
   eventHighlight: "", // Event type from eventTypes context

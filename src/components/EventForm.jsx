@@ -656,6 +656,51 @@ export function EventForm({
               />
             </div>
           )}
+          {/*
+            Reminder cadence, per event. Defaults: all three send. Any
+            box unchecked suppresses that reminder for THIS event only.
+            The Cloud Function reads these fields; missing = enabled so
+            events created before this UI shipped keep the full cadence.
+            Amy 2026-08-05.
+          */}
+          <div className="lg:col-span-2 rounded-md border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm font-medium text-[#1a254a]">Reminder emails to attendees</p>
+            <p className="mt-1 text-xs text-gray-500">
+              Sent to approved registrants. Uncheck any you want to skip. Reminders send on the Organizer tier and above.
+            </p>
+            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <label className="flex items-center gap-2 text-sm text-[#1a254a]">
+                <input
+                  type="checkbox"
+                  checked={formData?.reminderWeekEnabled !== false}
+                  onChange={(e) => updateField("reminderWeekEnabled", e.target.checked)}
+                  disabled={isSubmitting}
+                  className="h-4 w-4 accent-[#1a254a]"
+                />
+                1 week before
+              </label>
+              <label className="flex items-center gap-2 text-sm text-[#1a254a]">
+                <input
+                  type="checkbox"
+                  checked={formData?.reminder24hEnabled !== false}
+                  onChange={(e) => updateField("reminder24hEnabled", e.target.checked)}
+                  disabled={isSubmitting}
+                  className="h-4 w-4 accent-[#1a254a]"
+                />
+                24 hours before
+              </label>
+              <label className="flex items-center gap-2 text-sm text-[#1a254a]">
+                <input
+                  type="checkbox"
+                  checked={formData?.reminderDayOfEnabled !== false}
+                  onChange={(e) => updateField("reminderDayOfEnabled", e.target.checked)}
+                  disabled={isSubmitting}
+                  className="h-4 w-4 accent-[#1a254a]"
+                />
+                Day of
+              </label>
+            </div>
+          </div>
         </section>
       )}
 
