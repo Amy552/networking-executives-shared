@@ -537,7 +537,14 @@ export function EventForm({
             >
               <option value="" disabled hidden>Is it free or paid?</option>
               <option value="Free">Free</option>
-              <option value="Paid">Paid</option>
+              {/*
+                Amy 2026-08-05: the label at the decision point says
+                "managed externally" so an organizer understands the
+                platform does not collect the fee. The stored value stays
+                "Paid" — existing rows, listings, and schema.org JSON-LD
+                keep the short label everywhere else.
+              */}
+              <option value="Paid">Paid (managed externally)</option>
             </select>
             {fieldError("eventPricing") && (
               <p className="mt-1 text-sm text-red-500">{fieldError("eventPricing")}</p>
