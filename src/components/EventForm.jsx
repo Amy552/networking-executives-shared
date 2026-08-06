@@ -1047,6 +1047,18 @@ export function EventForm({
               Optional — we'll use {companyName}'s logo on file by default.
               Upload a horizontal image when you have an event-specific design.
             </p>
+            {/*
+              Sharing-crop guidance. Gig Talent 2026-08-05: Teams / Slack
+              render link previews as compact cards with a square thumbnail
+              on the LEFT, so a wide banner loses its sides. Full-bleed
+              previews (LinkedIn feed, iMessage rich links, Facebook) show
+              the whole 1200x630. Both scenarios crop from the sides, never
+              the middle, so keeping critical content centered survives
+              every platform. Amy 2026-08-05.
+            */}
+            <p className="mt-2 rounded-md border border-[#c9a34e]/30 bg-[#c9a34e]/5 px-3 py-2 text-[13px] text-[#1a254a]">
+              <span className="font-[600]">Design tip:</span> best at 1200×630 (or wider, same ratio). Keep the title, date and logo near the CENTER — Teams, Slack, and similar chat apps show a square crop of the middle for link previews.
+            </p>
           </div>
 
           <div className="w-full">
