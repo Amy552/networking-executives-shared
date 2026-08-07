@@ -71,6 +71,20 @@ export const DEFAULT_EVENT = {
   reminderWeekEnabled: true,
   reminder24hEnabled: true,
   reminderDayOfEnabled: true,
+  /*
+   * Referral-source picker options. Amy 2026-08-07: instead of a
+   * free-text custom question, the organizer configures a small set
+   * of options ("LinkedIn", "Colleague", "Email invitation", etc.)
+   * that the attendee picks from at registration. Below the picker a
+   * text field lets the attendee name the specific person who told
+   * them (optional).
+   *
+   * Default is an empty array, so the whole section is hidden until
+   * the organizer opts in by adding at least one option. Both the
+   * picker and the name field stay optional on the registrant side,
+   * per Amy's answer to the design questions.
+   */
+  referralSourceOptions: [],
   eventFormat: "", // In-Person, Virtual, Hybrid (display value)
   eventInvitation: "",
   eventHighlight: "", // Event type from eventTypes context
