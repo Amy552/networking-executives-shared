@@ -101,6 +101,21 @@ const Icons = {
 };
 
 /**
+ * Curated text-color palette. A short, on-brand list rather than a full picker,
+ * so descriptions stay legible and consistent. "Default" clears the color.
+ */
+const TEXT_COLORS = [
+  { label: "Default", value: null },
+  { label: "Navy", value: "#1a254a" },
+  { label: "Gold", value: "#c9a34e" },
+  { label: "Black", value: "#111827" },
+  { label: "Gray", value: "#6b7280" },
+  { label: "Red", value: "#dc2626" },
+  { label: "Green", value: "#16a34a" },
+  { label: "Blue", value: "#2563eb" },
+];
+
+/**
  * RichTextEditor Component
  * Tiptap-based rich text editor with basic formatting
  *
@@ -214,6 +229,9 @@ export function RichTextEditor({
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [htmlSource, setHtmlSource] = useState("");
 
+  // Text-color palette popover
+  const [colorOpen, setColorOpen] = useState(false);
+
   // Toggle HTML mode
   const toggleHtmlMode = () => {
     if (isHtmlMode) {
@@ -278,6 +296,45 @@ export function RichTextEditor({
             >
               <Icons.Italic />
             </ToolbarButton>
+            {/* Text color: applies via the already-loaded Color/TextStyle
+                extensions. Curated palette; "Default" clears the color. */}
+            <div className="relative">
+              <ToolbarButton
+                onClick={() => setColorOpen((o) => !o)}
+                isActive={colorOpen || !!editor.getAttributes("textStyle").color}
+                title="Text color"
+              >
+                <span
+                  className="text-sm font-bold leading-none"
+                  style={{ color: editor.getAttributes("textStyle").color || "currentColor" }}
+                >
+                  A
+                </span>
+              </ToolbarButton>
+              {colorOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setColorOpen(false)} />
+                  <div className="absolute left-0 top-full z-20 mt-1 grid grid-cols-4 gap-1.5 rounded-md border border-gray-200 bg-white p-2 shadow-lg">
+                    {TEXT_COLORS.map((c) => (
+                      <button
+                        key={c.value || "default"}
+                        type="button"
+                        title={c.label}
+                        onClick={() => {
+                          if (c.value) editor.chain().focus().setColor(c.value).run();
+                          else editor.chain().focus().unsetColor().run();
+                          setColorOpen(false);
+                        }}
+                        className="flex h-6 w-6 items-center justify-center rounded border border-gray-300"
+                        style={{ backgroundColor: c.value || "#ffffff" }}
+                      >
+                        {!c.value && <span className="text-[11px] leading-none text-gray-500">✕</span>}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <div className="w-px h-6 bg-gray-300 mx-1" />
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -343,7 +400,7 @@ export function RichTextEditor({
 
           {/* Footer */}
           <div className="mt-1 flex justify-between text-xs text-gray-500">
-            <span>Supports bold, italic, lists, and links</span>
+            <span>Supports bold, italic, color, lists, and links</span>
             <span className={isOverLimit ? "text-red-500 font-medium" : ""}>
               {currentLength}/{maxLength} characters
             </span>
