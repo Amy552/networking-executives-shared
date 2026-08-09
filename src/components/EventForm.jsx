@@ -1255,7 +1255,7 @@ export function EventForm({
                     textarea sitting under an empty upload zone reads as
                     "start typing here" and confuses the primary action.
                     Amy 2026-07-31: 1-2 sentence limit is enforced by the
-                    350-char cap; the copy uses "1-2 sentences" so the
+                    500-char cap; the copy uses "1-2 sentences" so the
                     guidance sits next to the field rather than in a
                     validation message.
                   */}
@@ -1272,12 +1272,12 @@ export function EventForm({
                           updateField("sponsorDescriptions", next);
                         }}
                         rows={2}
-                        maxLength={350}
+                        maxLength={500}
                         placeholder="e.g. National sponsor of the CFO Alliance. HR & payroll technology built for private-equity backed growth."
                         className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#c9a34e] focus:outline-none"
                       />
                       <div className="mt-1 flex justify-end text-[11px] text-gray-500">
-                        {description.length}/350
+                        {description.length}/500
                       </div>
                     </div>
                   )}
