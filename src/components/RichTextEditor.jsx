@@ -7,6 +7,7 @@ import { Image } from "@tiptap/extension-image";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Highlight } from "@tiptap/extension-highlight";
+import { TextAlign } from "@tiptap/extension-text-align";
 import { Extension } from "@tiptap/core";
 
 // Custom extension to preserve background-color on TextStyle
@@ -98,6 +99,43 @@ const Icons = {
       <polyline points="8 6 2 12 8 18" />
     </svg>
   ),
+  Underline: () => <span className="text-sm underline">U</span>,
+  Highlighter: () => (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 11l-4 4v3h3l4-4" />
+      <path d="M13 7l4 4" />
+      <path d="M15 5l4 4-7 7-4-4 7-7z" />
+    </svg>
+  ),
+  AlignLeft: () => (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="15" y2="12" />
+      <line x1="3" y1="18" x2="18" y2="18" />
+    </svg>
+  ),
+  AlignCenter: () => (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="6" y1="12" x2="18" y2="12" />
+      <line x1="5" y1="18" x2="19" y2="18" />
+    </svg>
+  ),
+  AlignRight: () => (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="9" y1="12" x2="21" y2="12" />
+      <line x1="6" y1="18" x2="21" y2="18" />
+    </svg>
+  ),
+  ClearFormat: () => (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 7V5h13v2" />
+      <path d="M9 5l-3 14" />
+      <line x1="14" y1="15" x2="20" y2="21" />
+      <line x1="20" y1="15" x2="14" y2="21" />
+    </svg>
+  ),
 };
 
 /**
@@ -113,6 +151,16 @@ const TEXT_COLORS = [
   { label: "Red", value: "#dc2626" },
   { label: "Green", value: "#16a34a" },
   { label: "Blue", value: "#2563eb" },
+];
+
+/** Curated highlight (background) colors; "None" clears the highlight. */
+const HIGHLIGHT_COLORS = [
+  { label: "None", value: null },
+  { label: "Yellow", value: "#fef08a" },
+  { label: "Gold", value: "#f5e6c0" },
+  { label: "Green", value: "#bbf7d0" },
+  { label: "Blue", value: "#bfdbfe" },
+  { label: "Pink", value: "#fbcfe8" },
 ];
 
 /**
@@ -174,6 +222,9 @@ export function RichTextEditor({
       Highlight.configure({
         multicolor: true,
       }),
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
       BackgroundColor,
     ],
     content: value || "",
@@ -229,8 +280,9 @@ export function RichTextEditor({
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [htmlSource, setHtmlSource] = useState("");
 
-  // Text-color palette popover
+  // Text-color / highlight palette popovers
   const [colorOpen, setColorOpen] = useState(false);
+  const [highlightOpen, setHighlightOpen] = useState(false);
 
   // Toggle HTML mode
   const toggleHtmlMode = () => {
@@ -281,7 +333,7 @@ export function RichTextEditor({
         </label>
         <div className="flex-1">
           {/* Toolbar */}
-          <div className="flex items-center gap-1 p-2 border border-b-0 border-gray-300 rounded-t-md bg-gray-50">
+          <div className="flex flex-wrap items-center gap-1 p-2 border border-b-0 border-gray-300 rounded-t-md bg-gray-50">
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBold().run()}
               isActive={editor.isActive("bold")}
@@ -295,6 +347,13 @@ export function RichTextEditor({
               title="Italic"
             >
               <Icons.Italic />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              isActive={editor.isActive("underline")}
+              title="Underline"
+            >
+              <Icons.Underline />
             </ToolbarButton>
             {/* Text color: applies via the already-loaded Color/TextStyle
                 extensions. Curated palette; "Default" clears the color. */}
@@ -335,6 +394,87 @@ export function RichTextEditor({
                 </>
               )}
             </div>
+            {/* Highlight color: uses the already-loaded (multicolor) Highlight
+                extension. "None" clears the highlight. */}
+            <div className="relative">
+              <ToolbarButton
+                onClick={() => setHighlightOpen((o) => !o)}
+                isActive={highlightOpen || editor.isActive("highlight")}
+                title="Highlight"
+              >
+                <Icons.Highlighter />
+              </ToolbarButton>
+              {highlightOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setHighlightOpen(false)} />
+                  <div className="absolute left-0 top-full z-20 mt-1 grid grid-cols-3 gap-1.5 rounded-md border border-gray-200 bg-white p-2 shadow-lg">
+                    {HIGHLIGHT_COLORS.map((c) => (
+                      <button
+                        key={c.value || "none"}
+                        type="button"
+                        title={c.label}
+                        onClick={() => {
+                          if (c.value) editor.chain().focus().setHighlight({ color: c.value }).run();
+                          else editor.chain().focus().unsetHighlight().run();
+                          setHighlightOpen(false);
+                        }}
+                        className="flex h-6 w-6 items-center justify-center rounded border border-gray-300"
+                        style={{ backgroundColor: c.value || "#ffffff" }}
+                      >
+                        {!c.value && <span className="text-[11px] leading-none text-gray-500">✕</span>}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="w-px h-6 bg-gray-300 mx-1" />
+            {/* Paragraph / heading level */}
+            <select
+              value={
+                editor.isActive("heading", { level: 1 })
+                  ? "1"
+                  : editor.isActive("heading", { level: 2 })
+                    ? "2"
+                    : editor.isActive("heading", { level: 3 })
+                      ? "3"
+                      : "p"
+              }
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "p") editor.chain().focus().setParagraph().run();
+                else editor.chain().focus().toggleHeading({ level: Number(v) }).run();
+              }}
+              title="Text style"
+              className="rounded border border-gray-300 bg-white px-1.5 py-1 text-sm text-gray-700 focus:border-[#c9a34e] focus:outline-none"
+            >
+              <option value="p">Normal</option>
+              <option value="1">Heading 1</option>
+              <option value="2">Heading 2</option>
+              <option value="3">Heading 3</option>
+            </select>
+            <div className="w-px h-6 bg-gray-300 mx-1" />
+            <ToolbarButton
+              onClick={() => editor.chain().focus().setTextAlign("left").run()}
+              isActive={editor.isActive({ textAlign: "left" })}
+              title="Align left"
+            >
+              <Icons.AlignLeft />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().setTextAlign("center").run()}
+              isActive={editor.isActive({ textAlign: "center" })}
+              title="Align center"
+            >
+              <Icons.AlignCenter />
+            </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().setTextAlign("right").run()}
+              isActive={editor.isActive({ textAlign: "right" })}
+              title="Align right"
+            >
+              <Icons.AlignRight />
+            </ToolbarButton>
             <div className="w-px h-6 bg-gray-300 mx-1" />
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -373,6 +513,12 @@ export function RichTextEditor({
             >
               <Icons.Redo />
             </ToolbarButton>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+              title="Clear formatting"
+            >
+              <Icons.ClearFormat />
+            </ToolbarButton>
             <div className="w-px h-6 bg-gray-300 mx-1" />
             <ToolbarButton
               onClick={toggleHtmlMode}
@@ -400,7 +546,7 @@ export function RichTextEditor({
 
           {/* Footer */}
           <div className="mt-1 flex justify-between text-xs text-gray-500">
-            <span>Supports bold, italic, color, lists, and links</span>
+            <span>Bold, italic, underline, color, highlight, headings, alignment, lists, and links</span>
             <span className={isOverLimit ? "text-red-500 font-medium" : ""}>
               {currentLength}/{maxLength} characters
             </span>
