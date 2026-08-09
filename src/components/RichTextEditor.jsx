@@ -138,6 +138,99 @@ const Icons = {
   ),
 };
 
+/** Outlook-style standard color palette for text. */
+const STANDARD_TEXT_COLORS = [
+  "#000000", "#434343", "#666666", "#999999", "#b7b7b7", "#ffffff",
+  "#1a254a", "#c9a34e", "#e03131", "#f76707", "#f2b705", "#2f9e44",
+  "#0ca678", "#1971c2", "#3b5bdb", "#7048e8", "#e64980", "#a52714",
+];
+/** Lighter tints for highlighting. */
+const STANDARD_HIGHLIGHT_COLORS = [
+  "#fff3bf", "#ffe8cc", "#d3f9d8", "#c5f6fa", "#d0ebff", "#e5dbff",
+  "#ffdeeb", "#ffec99", "#b2f2bb", "#a5d8ff", "#eebefa", "#f1f3f5",
+];
+
+/**
+ * Outlook-style color menu: a toolbar button (icon + a bar showing the current
+ * color + a caret) that opens a palette of standard swatches, an "Automatic"
+ * option that clears the color, and a "More colors…" custom picker. Shared by
+ * the text-color and highlight controls so both behave like a familiar editor.
+ */
+function ColorMenu({ title, icon, current, colors, onPick, onClear, clearLabel }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        title={title}
+        onClick={() => setOpen((o) => !o)}
+        className={`flex items-center gap-0.5 rounded p-2 text-gray-600 transition-colors hover:bg-gray-200 ${open ? "bg-gray-200" : ""}`}
+      >
+        <span className="flex flex-col items-center">
+          {icon}
+          <span className="mt-[3px] h-[3px] w-4 rounded" style={{ backgroundColor: current || "#111827" }} />
+        </span>
+        <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true" className="text-gray-400">
+          <path d="M1 3l4 4 4-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 top-full z-20 mt-1 w-[184px] rounded-md border border-gray-200 bg-white p-2 shadow-lg">
+            <button
+              type="button"
+              onClick={() => {
+                onClear();
+                setOpen(false);
+              }}
+              className="mb-2 flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-[12px] text-gray-700 hover:bg-gray-100"
+            >
+              <span className="inline-block h-4 w-4 rounded-sm border border-gray-300 bg-white" />
+              {clearLabel}
+            </button>
+            <div className="grid grid-cols-6 gap-1">
+              {colors.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  title={c}
+                  aria-label={`Color ${c}`}
+                  onClick={() => {
+                    onPick(c);
+                    setOpen(false);
+                  }}
+                  className={`h-6 w-6 rounded-sm border transition-transform hover:scale-110 ${
+                    current && current.toLowerCase() === c.toLowerCase()
+                      ? "border-gray-800 ring-1 ring-gray-800"
+                      : "border-gray-300"
+                  }`}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+            <label className="mt-2 flex cursor-pointer items-center gap-2 rounded px-1.5 py-1 text-[12px] text-gray-700 hover:bg-gray-100">
+              <span
+                className="inline-block h-4 w-4 rounded-sm border border-gray-300"
+                style={{ background: "conic-gradient(#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)" }}
+              />
+              More colors…
+              <input
+                type="color"
+                className="sr-only"
+                onChange={(e) => {
+                  onPick(e.target.value);
+                  setOpen(false);
+                }}
+              />
+            </label>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /**
  * RichTextEditor Component
  * Tiptap-based rich text editor with basic formatting
@@ -327,57 +420,26 @@ export function RichTextEditor({
             >
               <Icons.Underline />
             </ToolbarButton>
-            {/* Text color: the recognizable "A + color bar" affordance backed by
-                the browser's native color picker (full range, the standard
-                control). The paired button clears the color. */}
-            <label className="relative flex items-center" title="Text color">
-              <span className="flex cursor-pointer flex-col items-center rounded p-2 text-gray-600 hover:bg-gray-200">
-                <span className="text-sm font-bold leading-none">A</span>
-                <span
-                  className="mt-[3px] h-[3px] w-4 rounded"
-                  style={{ backgroundColor: editor.getAttributes("textStyle").color || "#111827" }}
-                />
-              </span>
-              <input
-                type="color"
-                aria-label="Text color"
-                value={editor.getAttributes("textStyle").color || "#1a254a"}
-                onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
-                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              />
-            </label>
-            <ToolbarButton
-              onClick={() => editor.chain().focus().unsetColor().run()}
-              disabled={!editor.getAttributes("textStyle").color}
-              title="Clear text color"
-            >
-              <span className="text-[13px] font-semibold leading-none text-gray-500">A✕</span>
-            </ToolbarButton>
-            {/* Highlight color: same native-picker pattern, backed by the
-                (multicolor) Highlight extension. Paired button clears it. */}
-            <label className="relative flex items-center" title="Highlight color">
-              <span className="flex cursor-pointer flex-col items-center rounded p-2 text-gray-600 hover:bg-gray-200">
-                <Icons.Highlighter />
-                <span
-                  className="mt-[3px] h-[3px] w-4 rounded"
-                  style={{ backgroundColor: editor.getAttributes("highlight").color || "#fde68a" }}
-                />
-              </span>
-              <input
-                type="color"
-                aria-label="Highlight color"
-                value={editor.getAttributes("highlight").color || "#fde68a"}
-                onChange={(e) => editor.chain().focus().setHighlight({ color: e.target.value }).run()}
-                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              />
-            </label>
-            <ToolbarButton
-              onClick={() => editor.chain().focus().unsetHighlight().run()}
-              disabled={!editor.isActive("highlight")}
-              title="Clear highlight"
-            >
-              <span className="text-[13px] font-semibold leading-none text-gray-500">✕</span>
-            </ToolbarButton>
+            {/* Text color + highlight: Outlook-style palette menus (standard
+                swatches + Automatic/clear + a "More colors…" custom picker). */}
+            <ColorMenu
+              title="Font color"
+              icon={<span className="text-sm font-bold leading-none">A</span>}
+              current={editor.getAttributes("textStyle").color}
+              colors={STANDARD_TEXT_COLORS}
+              onPick={(c) => editor.chain().focus().setColor(c).run()}
+              onClear={() => editor.chain().focus().unsetColor().run()}
+              clearLabel="Automatic"
+            />
+            <ColorMenu
+              title="Highlight color"
+              icon={<Icons.Highlighter />}
+              current={editor.getAttributes("highlight").color}
+              colors={STANDARD_HIGHLIGHT_COLORS}
+              onPick={(c) => editor.chain().focus().setHighlight({ color: c }).run()}
+              onClear={() => editor.chain().focus().unsetHighlight().run()}
+              clearLabel="No highlight"
+            />
             <div className="w-px h-6 bg-gray-300 mx-1" />
             {/* Paragraph / heading level */}
             <select
