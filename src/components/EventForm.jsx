@@ -494,9 +494,8 @@ export function EventForm({
                 twice on one screen reads as pressure.
               */}
               <p className="mt-1 text-sm text-gray-500">
-                If people sign up on your own site or a ticketing page, paste that link here. If
-                there is nothing to sign up for, leave it blank and the event shows as a listing
-                with the details.
+                If people sign up on your own site or a ticketing page, paste that link here.
+                Leave it blank and NsightIndex captures registrations for you.
               </p>
               <input
                 type="url"
