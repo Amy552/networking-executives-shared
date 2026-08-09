@@ -144,6 +144,16 @@ export function EventForm({
       address: locationData.address || "",
     };
 
+    /*
+     * Google Places returns the venue name ("The Adolphus Hotel") on named
+     * places and empty on plain-street picks. Set it whenever it is present
+     * so a new pick refreshes the label; leave whatever the organizer typed
+     * in the field alone when the picker didn't supply one.
+     */
+    if (locationData.venueName) {
+      updates.venueName = locationData.venueName;
+    }
+
     if (locationData.coordinates) {
       updates.latitude = locationData.coordinates.lat;
       updates.longitude = locationData.coordinates.lng;
@@ -811,6 +821,31 @@ export function EventForm({
                   error={fieldError("address")}
                   layout={formConfig.layout}
                 />
+                </div>
+
+                {/*
+                  Location Name. Sits between Address and City so it reads as
+                  the label that goes on top of the address wherever the event
+                  is rendered (details page, invitation email). Auto-populates
+                  when the organizer picks a named place ("The Adolphus Hotel")
+                  in the address autocomplete — organizer can still edit or
+                  clear it manually if they want.
+                */}
+                <div className="lg:col-span-2">
+                  <label className="text-base font-medium text-[#2D2C3C]">
+                    Location Name <span className="text-gray-400 text-sm font-normal">(optional)</span>
+                  </label>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Shown above the address on the event page and in invitations. Auto-fills when you pick a named place.
+                  </p>
+                  <input
+                    type="text"
+                    value={formData?.venueName || ""}
+                    onChange={(e) => updateField("venueName", e.target.value)}
+                    disabled={isSubmitting}
+                    placeholder="e.g. The Adolphus Hotel"
+                    className="mt-1 w-full rounded-lg border border-gray-300 p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  />
                 </div>
 
                 {cities.length > 0 ? (

@@ -87,6 +87,20 @@ export function LocationPicker({
     isInternalUpdate.current = true;
     setInputValue(selectedAddress);
 
+    /*
+     * Google returns place.name on named venues ("The Adolphus Hotel") and
+     * echoes the street when the user picked a plain address ("1321 Commerce
+     * St"). Only the first case is useful as a venue label — the echo case
+     * would duplicate the address on the event page. Cheap check: if name is
+     * distinct from the formatted address AND not just the street number
+     * prefix of it, keep it. Otherwise pass empty and let the form leave
+     * whatever venueName is already there in place.
+     */
+    const rawName = String(place.name || "").trim();
+    const looksLikeStreetEcho =
+      rawName && selectedAddress && selectedAddress.toLowerCase().startsWith(rawName.toLowerCase());
+    const venueName = rawName && !looksLikeStreetEcho ? rawName : "";
+
     // Get timezone for location
     let timezone = null;
     try {
@@ -105,6 +119,7 @@ export function LocationPicker({
     onValidation?.({ isValid: true, error: null });
     onChange?.({
       address: selectedAddress,
+      venueName,
       coordinates: { lat, lng },
       timezone,
       addressComponents,
