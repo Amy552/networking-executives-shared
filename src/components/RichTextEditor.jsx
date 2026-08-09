@@ -139,31 +139,6 @@ const Icons = {
 };
 
 /**
- * Curated text-color palette. A short, on-brand list rather than a full picker,
- * so descriptions stay legible and consistent. "Default" clears the color.
- */
-const TEXT_COLORS = [
-  { label: "Default", value: null },
-  { label: "Navy", value: "#1a254a" },
-  { label: "Gold", value: "#c9a34e" },
-  { label: "Black", value: "#111827" },
-  { label: "Gray", value: "#6b7280" },
-  { label: "Red", value: "#dc2626" },
-  { label: "Green", value: "#16a34a" },
-  { label: "Blue", value: "#2563eb" },
-];
-
-/** Curated highlight (background) colors; "None" clears the highlight. */
-const HIGHLIGHT_COLORS = [
-  { label: "None", value: null },
-  { label: "Yellow", value: "#fef08a" },
-  { label: "Gold", value: "#f5e6c0" },
-  { label: "Green", value: "#bbf7d0" },
-  { label: "Blue", value: "#bfdbfe" },
-  { label: "Pink", value: "#fbcfe8" },
-];
-
-/**
  * RichTextEditor Component
  * Tiptap-based rich text editor with basic formatting
  *
@@ -280,9 +255,6 @@ export function RichTextEditor({
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [htmlSource, setHtmlSource] = useState("");
 
-  // Text-color / highlight palette popovers
-  const [colorOpen, setColorOpen] = useState(false);
-  const [highlightOpen, setHighlightOpen] = useState(false);
 
   // Toggle HTML mode
   const toggleHtmlMode = () => {
@@ -355,79 +327,57 @@ export function RichTextEditor({
             >
               <Icons.Underline />
             </ToolbarButton>
-            {/* Text color: applies via the already-loaded Color/TextStyle
-                extensions. Curated palette; "Default" clears the color. */}
-            <div className="relative">
-              <ToolbarButton
-                onClick={() => setColorOpen((o) => !o)}
-                isActive={colorOpen || !!editor.getAttributes("textStyle").color}
-                title="Text color"
-              >
+            {/* Text color: the recognizable "A + color bar" affordance backed by
+                the browser's native color picker (full range, the standard
+                control). The paired button clears the color. */}
+            <label className="relative flex items-center" title="Text color">
+              <span className="flex cursor-pointer flex-col items-center rounded p-2 text-gray-600 hover:bg-gray-200">
+                <span className="text-sm font-bold leading-none">A</span>
                 <span
-                  className="text-sm font-bold leading-none"
-                  style={{ color: editor.getAttributes("textStyle").color || "currentColor" }}
-                >
-                  A
-                </span>
-              </ToolbarButton>
-              {colorOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setColorOpen(false)} />
-                  <div className="absolute left-0 top-full z-20 mt-1 grid grid-cols-4 gap-1.5 rounded-md border border-gray-200 bg-white p-2 shadow-lg">
-                    {TEXT_COLORS.map((c) => (
-                      <button
-                        key={c.value || "default"}
-                        type="button"
-                        title={c.label}
-                        onClick={() => {
-                          if (c.value) editor.chain().focus().setColor(c.value).run();
-                          else editor.chain().focus().unsetColor().run();
-                          setColorOpen(false);
-                        }}
-                        className="flex h-6 w-6 items-center justify-center rounded border border-gray-300"
-                        style={{ backgroundColor: c.value || "#ffffff" }}
-                      >
-                        {!c.value && <span className="text-[11px] leading-none text-gray-500">✕</span>}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            {/* Highlight color: uses the already-loaded (multicolor) Highlight
-                extension. "None" clears the highlight. */}
-            <div className="relative">
-              <ToolbarButton
-                onClick={() => setHighlightOpen((o) => !o)}
-                isActive={highlightOpen || editor.isActive("highlight")}
-                title="Highlight"
-              >
+                  className="mt-[3px] h-[3px] w-4 rounded"
+                  style={{ backgroundColor: editor.getAttributes("textStyle").color || "#111827" }}
+                />
+              </span>
+              <input
+                type="color"
+                aria-label="Text color"
+                value={editor.getAttributes("textStyle").color || "#1a254a"}
+                onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              />
+            </label>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().unsetColor().run()}
+              disabled={!editor.getAttributes("textStyle").color}
+              title="Clear text color"
+            >
+              <span className="text-[13px] font-semibold leading-none text-gray-500">A✕</span>
+            </ToolbarButton>
+            {/* Highlight color: same native-picker pattern, backed by the
+                (multicolor) Highlight extension. Paired button clears it. */}
+            <label className="relative flex items-center" title="Highlight color">
+              <span className="flex cursor-pointer flex-col items-center rounded p-2 text-gray-600 hover:bg-gray-200">
                 <Icons.Highlighter />
-              </ToolbarButton>
-              {highlightOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setHighlightOpen(false)} />
-                  <div className="absolute left-0 top-full z-20 mt-1 grid grid-cols-3 gap-1.5 rounded-md border border-gray-200 bg-white p-2 shadow-lg">
-                    {HIGHLIGHT_COLORS.map((c) => (
-                      <button
-                        key={c.value || "none"}
-                        type="button"
-                        title={c.label}
-                        onClick={() => {
-                          if (c.value) editor.chain().focus().setHighlight({ color: c.value }).run();
-                          else editor.chain().focus().unsetHighlight().run();
-                          setHighlightOpen(false);
-                        }}
-                        className="flex h-6 w-6 items-center justify-center rounded border border-gray-300"
-                        style={{ backgroundColor: c.value || "#ffffff" }}
-                      >
-                        {!c.value && <span className="text-[11px] leading-none text-gray-500">✕</span>}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+                <span
+                  className="mt-[3px] h-[3px] w-4 rounded"
+                  style={{ backgroundColor: editor.getAttributes("highlight").color || "#fde68a" }}
+                />
+              </span>
+              <input
+                type="color"
+                aria-label="Highlight color"
+                value={editor.getAttributes("highlight").color || "#fde68a"}
+                onChange={(e) => editor.chain().focus().setHighlight({ color: e.target.value }).run()}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              />
+            </label>
+            <ToolbarButton
+              onClick={() => editor.chain().focus().unsetHighlight().run()}
+              disabled={!editor.isActive("highlight")}
+              title="Clear highlight"
+            >
+              <span className="text-[13px] font-semibold leading-none text-gray-500">✕</span>
+            </ToolbarButton>
             <div className="w-px h-6 bg-gray-300 mx-1" />
             {/* Paragraph / heading level */}
             <select
