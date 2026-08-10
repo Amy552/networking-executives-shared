@@ -845,6 +845,7 @@ export function EventForm({
                   required
                   error={fieldError("address")}
                   layout={formConfig.layout}
+                  isAdmin={isAdmin}
                 />
                 </div>
 

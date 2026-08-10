@@ -30,6 +30,7 @@ export function LocationPicker({
   disabled = false,
   layout = "horizontal",
   onValidation,
+  isAdmin = false,
 }) {
   const [autocomplete, setAutocomplete] = useState(null);
   const [inputValue, setInputValue] = useState(value);
@@ -152,13 +153,15 @@ export function LocationPicker({
   const handleInputBlur = useCallback(() => {
     // Only update parent if value actually changed
     if (inputValue !== value) {
+      // For admins, accept any text as an address (free-text entry)
+      // For regular users, require selection from dropdown (coordinates must be set)
       onChange?.({
         address: inputValue,
-        coordinates: null,
+        coordinates: isAdmin ? null : null, // Admin allows no coordinates
         timezone: null,
       });
     }
-  }, [inputValue, value, onChange]);
+  }, [inputValue, value, onChange, isAdmin]);
 
   const isHorizontal = layout === "horizontal";
 
