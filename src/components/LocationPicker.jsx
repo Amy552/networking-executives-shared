@@ -201,7 +201,19 @@ export function LocationPicker({
         </label>
 
         <div className={`flex-1 ${isHorizontal ? "lg:ml-8" : "mt-1"}`}>
-          {isLoaded ? (
+          {isAdmin ? (
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              placeholder={placeholder}
+              disabled={disabled}
+              className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+                error ? "border-red-500" : "border-gray-300"
+              } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
+            />
+          ) : isLoaded ? (
             <Autocomplete
               onLoad={(auto) => setAutocomplete(auto)}
               onPlaceChanged={handlePlaceSelect}
