@@ -101,7 +101,27 @@ export function LocationPicker({
       rawName && selectedAddress && selectedAddress.toLowerCase().startsWith(rawName.toLowerCase());
     const venueName = rawName && !looksLikeStreetEcho ? rawName : "";
 
-    // Get timezone for location
+    /*
+     * Apply the address + components IMMEDIATELY, before the async timezone
+     * lookup. Selecting a suggestion blurs the input, which fires a synchronous
+     * address-only onChange (handleInputBlur). If we waited for the awaited
+     * timezone fetch to deliver the components, that blur could land in the gap
+     * and leave the address filled but city / state / zip empty — the bug Amy
+     * reported 2026-08-09. Sending the components now also makes the parent's
+     * `value` match inputValue, so the blur handler no-ops instead of clobbering
+     * the pick. Timezone is folded in by a second onChange once it resolves.
+     */
+    onValidation?.({ isValid: true, error: null });
+    onChange?.({
+      address: selectedAddress,
+      venueName,
+      coordinates: { lat, lng },
+      timezone: null,
+      addressComponents,
+    });
+
+    // Timezone is a slower lookup; add it when it resolves. This second
+    // onChange only contributes the timezone — address/components already landed.
     let timezone = null;
     try {
       timezone = await getTimezoneForLocation(lat, lng);
@@ -114,9 +134,6 @@ export function LocationPicker({
     }
 
     setIsLoading(false);
-
-    // Notify parent of valid selection
-    onValidation?.({ isValid: true, error: null });
     onChange?.({
       address: selectedAddress,
       venueName,
