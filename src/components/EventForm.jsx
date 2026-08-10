@@ -812,24 +812,13 @@ export function EventForm({
                 <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
                   Location
                 </h3>
-                <div className="lg:col-span-2">
-                <LocationPicker
-                  value={formData?.address || ""}
-                  onChange={handleLocationSelect}
-                  label="Address"
-                  required
-                  error={fieldError("address")}
-                  layout={formConfig.layout}
-                />
-                </div>
-
                 {/*
-                  Location Name. Sits between Address and City so it reads as
-                  the label that goes on top of the address wherever the event
-                  is rendered (details page, invitation email). Auto-populates
-                  when the organizer picks a named place ("The Adolphus Hotel")
-                  in the address autocomplete — organizer can still edit or
-                  clear it manually if they want.
+                  Location Name sits ABOVE Address so the form matches how the
+                  event renders: the venue name is the label on top of the
+                  street address on the details page and in invitations (Amy
+                  2026-08-09). Auto-populates when the organizer picks a named
+                  place ("The Adolphus Hotel") in the address autocomplete
+                  below; the organizer can still edit or clear it manually.
                 */}
                 <div className="lg:col-span-2">
                   <label className="text-base font-medium text-[#2D2C3C]">
@@ -846,6 +835,17 @@ export function EventForm({
                     placeholder="e.g. The Adolphus Hotel"
                     className="mt-1 w-full rounded-lg border border-gray-300 p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                   />
+                </div>
+
+                <div className="lg:col-span-2">
+                <LocationPicker
+                  value={formData?.address || ""}
+                  onChange={handleLocationSelect}
+                  label="Address"
+                  required
+                  error={fieldError("address")}
+                  layout={formConfig.layout}
+                />
                 </div>
 
                 {cities.length > 0 ? (
