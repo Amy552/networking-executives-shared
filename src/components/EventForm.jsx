@@ -58,6 +58,11 @@ export function EventForm({
   // Drag and drop state
   const [isDragging, setIsDragging] = useState(false);
 
+  // Industries picker: collapsed to a chips box by default, expands on click.
+  // A wall of category pills read as daunting on a required field (Amy
+  // 2026-08-11); this keeps it calm while staying clearly required.
+  const [industriesOpen, setIndustriesOpen] = useState(false);
+
   // Organization "Other" manual entry state
   const [isOtherOrgSelected, setIsOtherOrgSelected] = useState(false);
 
@@ -951,49 +956,127 @@ export function EventForm({
       })()}
 
       {/* Industries/Categories Section */}
-      {formConfig.showIndustries && industries.length > 0 && (
-        <section className="grid grid-cols-1 gap-x-5 gap-y-4 lg:grid-cols-2">
-          <h3 className="text-lg font-semibold text-gray-900 border-b-2 border-[#c9a34e]/30 pb-2 lg:col-span-2">
-            Industries / Categories <span className="text-[#c9a34e]">*</span>
-          </h3>
+      {formConfig.showIndustries && industries.length > 0 && (() => {
+        const selectedValues = formData?.industries || [];
+        const readValue = (industry) => (typeof industry === "string" ? industry : industry.value || industry.name);
+        const readLabel = (industry) =>
+          typeof industry === "string" ? industry : industry.label || industry.name || industry.value;
+        const labelForValue = (v) => {
+          const match = industries.find((ind) => readValue(ind) === v);
+          return match ? readLabel(match) : v;
+        };
+        const atLimit = selectedValues.length >= MAX_INDUSTRIES;
+        const hasError = !!fieldError("industries");
+        return (
+          <section className="space-y-2">
+            <h3 className="border-b-2 border-[#c9a34e]/30 pb-2 text-lg font-semibold text-gray-900">
+              Industries / Categories <span className="text-[#c9a34e]">*</span>
+            </h3>
 
-          <div className="flex flex-wrap gap-2 lg:col-span-2">
-            {industries.map((industry) => {
-              const industryValue = typeof industry === "string" ? industry : industry.value || industry.name;
-              const industryLabel = typeof industry === "string" ? industry : industry.label || industry.name || industry.value;
-              const isSelected = (formData?.industries || []).includes(industryValue);
-              const isAtLimit = (formData?.industries || []).length >= MAX_INDUSTRIES;
-              const isDisabled = isSubmitting || (!isSelected && isAtLimit);
+            {/* Collapsed trigger. Shows the picks as chips (removable) and opens
+                the category picker on click, so a required field stays calm
+                rather than showing every option at once. */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => !isSubmitting && setIndustriesOpen((o) => !o)}
+              onKeyDown={(e) => {
+                if ((e.key === "Enter" || e.key === " ") && !isSubmitting) {
+                  e.preventDefault();
+                  setIndustriesOpen((o) => !o);
+                }
+              }}
+              className={`flex min-h-[48px] cursor-pointer items-center justify-between gap-3 rounded-lg border p-2.5 transition-colors ${
+                hasError
+                  ? "border-red-500"
+                  : industriesOpen
+                    ? "border-[#030959]"
+                    : "border-gray-300 hover:border-[#030959]"
+              }`}
+            >
+              <div className="flex flex-1 flex-wrap gap-2">
+                {selectedValues.length === 0 ? (
+                  <span className="px-1 text-gray-400">Select one or more industries</span>
+                ) : (
+                  selectedValues.map((v) => (
+                    <span
+                      key={v}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#030959] py-1 pr-2 pl-3 text-sm text-white"
+                    >
+                      {labelForValue(v)}
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Remove ${labelForValue(v)}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isSubmitting) handleIndustryToggle(v);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!isSubmitting) handleIndustryToggle(v);
+                          }
+                        }}
+                        className="grid h-4 w-4 cursor-pointer place-items-center rounded-full text-white/70 hover:bg-white/20 hover:text-white"
+                      >
+                        ×
+                      </span>
+                    </span>
+                  ))
+                )}
+              </div>
+              <svg
+                className={`h-4 w-4 shrink-0 text-gray-500 transition-transform ${industriesOpen ? "rotate-180" : ""}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
 
-              return (
-                <button
-                  key={industryValue}
-                  type="button"
-                  onClick={() => handleIndustryToggle(industryValue)}
-                  disabled={isDisabled}
-                  className={`px-4 py-2 rounded-full border transition-colors ${
-                    isSelected
-                      ? "bg-[#030959] text-white border-[#030959]"
-                      : isDisabled
-                        ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                        : "bg-white text-gray-700 border-gray-300 hover:border-[#030959]"
-                  }`}
-                >
-                  {industryLabel}
-                </button>
-              );
-            })}
-          </div>
+            {industriesOpen && (
+              <div className="rounded-lg border border-gray-200 p-3">
+                <div className="flex flex-wrap gap-2">
+                  {industries.map((industry) => {
+                    const industryValue = readValue(industry);
+                    const industryLabel = readLabel(industry);
+                    const isSelected = selectedValues.includes(industryValue);
+                    const isDisabled = isSubmitting || (!isSelected && atLimit);
+                    return (
+                      <button
+                        key={industryValue}
+                        type="button"
+                        onClick={() => handleIndustryToggle(industryValue)}
+                        disabled={isDisabled}
+                        className={`rounded-full border px-4 py-2 transition-colors ${
+                          isSelected
+                            ? "border-[#030959] bg-[#030959] text-white"
+                            : isDisabled
+                              ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                              : "border-gray-300 bg-white text-gray-700 hover:border-[#030959]"
+                        }`}
+                      >
+                        {industryLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-3 text-sm text-gray-500">
+                  Selected: {selectedValues.length} / {MAX_INDUSTRIES} (max)
+                </p>
+              </div>
+            )}
 
-          {fieldError("industries") && (
-            <p className="mt-1 text-sm text-red-500 lg:col-span-2">{fieldError("industries")}</p>
-          )}
-
-          <p className="text-sm text-gray-500 lg:col-span-2">
-            Selected: {(formData?.industries || []).length} / {MAX_INDUSTRIES} (max)
-          </p>
-        </section>
-      )}
+            {hasError && <p className="text-sm text-red-500">{fieldError("industries")}</p>}
+          </section>
+        );
+      })()}
 
       {/* Contact Section */}
       {formConfig.showContact && (
