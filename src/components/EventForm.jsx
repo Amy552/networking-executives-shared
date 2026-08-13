@@ -1175,7 +1175,7 @@ export function EventForm({
               every platform. Amy 2026-08-05.
             */}
             <p className="mt-2 rounded-md border border-[#c9a34e]/30 bg-[#c9a34e]/5 px-3 py-2 text-[13px] text-[#1a254a]">
-              <span className="font-[600]">Design tip:</span> best at 1200×630 (or wider, same ratio). Keep the title, date and logo near the CENTER — Teams, Slack, and similar chat apps show a square crop of the middle for link previews.
+              <span className="font-[600]">Design tip:</span> best as a wide banner around 1200×330 (or larger at the same ratio), so it fills the space without the top and bottom getting cut off. Keep the title, date and logo near the CENTER, since Teams, Slack, and similar chat apps show a square crop of the middle for link previews.
             </p>
           </div>
 
@@ -1266,7 +1266,7 @@ export function EventForm({
                     <p className="mb-2 text-sm text-gray-500">
                       <span className="font-semibold">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-xs text-gray-400">PNG or JPG (recommended: 1200×800px or larger)</p>
+                    <p className="text-xs text-gray-400">PNG or JPG, wide format (about 1200×330px, or larger at the same ratio)</p>
                   </div>
                   <input
                     type="file"
