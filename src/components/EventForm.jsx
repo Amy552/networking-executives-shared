@@ -731,9 +731,15 @@ export function EventForm({
             the venue's zone regardless of where the organizer is
             sitting when they type it. Every event tool does this;
             the ambiguity is only in whether the organizer KNOWS
-            that's what's happening. Before the address is
-            geocoded the zone is unknown, so we say so and prompt
-            them to enter the address to lock it in.
+            that's what's happening.
+
+            The address field is free text (Places autocomplete was
+            removed because it locked the input), so there is no live
+            geocode to read a zone from while typing. The zone is
+            derived from the address when the event is saved. So the
+            no-zone branch states the local-time rule plainly instead
+            of prompting for an address confirmation it can no longer
+            deliver, which otherwise left the hint stuck forever.
           */}
           <div className="lg:col-span-2 rounded-md bg-[#c9a34e]/10 px-3 py-2 text-[13px] text-[#1a254a]">
             {(() => {
@@ -741,8 +747,9 @@ export function EventForm({
               if (!tz) {
                 return (
                   <>
-                    Times below are read as <strong>venue-local time</strong> — enter the venue address
-                    below and we'll show the confirmed time zone here.
+                    Enter times in the event's <strong>local time</strong> (the
+                    time attendees will see at the venue). We'll set the time
+                    zone from the address when you save.
                   </>
                 );
               }
