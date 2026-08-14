@@ -56,13 +56,8 @@ export function LocationPicker({
 
     const place = autocomplete.getPlace();
 
-    // No geometry means place_changed fired without a real suggestion picked
-    // (usually the organizer pressed Enter on their own text). Do NOT flag the
-    // field invalid — that "please select from the dropdown" error was the old
-    // "!" lock that trapped the input. Leave the typed text alone; the blur
-    // handler keeps it as free text and submit geocodes it. Only a genuine
-    // suggestion (with geometry) sets coordinates below.
     if (!place.geometry) {
+      onValidation?.({ isValid: false, error: "Please select a valid location from the dropdown" });
       return;
     }
 
@@ -179,43 +174,28 @@ export function LocationPicker({
 
         <div className={`flex-1 ${isHorizontal ? "lg:ml-8" : "mt-1"}`}>
           {/*
-            Google Places Autocomplete for address suggestions. Picking a
-            suggestion sets exact coordinates (which drive the venue map on the
-            event page and the time-zone lookup) plus the city / state / zip
-            components. Reworked so it can no longer lock the field: typing that
-            does not match a suggestion is accepted as free text, and pressing
-            Enter without picking one no longer flags the field invalid (that was
-            the old "!" lock, see handlePlaceSelect / handleInputBlur). Admins,
-            a maps load error, and the brief pre-load window fall back to a plain
-            input so the field is always usable and never blocks typing.
+            Plain free-text address input, for everyone (not just admins).
+
+            The Google Places Autocomplete wrapper enforces "you must pick a
+            suggestion from the dropdown"; once the typed text stops matching a
+            suggestion it locks the field and shows a "!" icon, so an organizer
+            can't finish typing or edit what they entered (Amy 2026-08-14). This
+            is the same bug that was fixed on the admin panel by bypassing Places
+            (isAdmin path). It has now surfaced for regular users too, so the
+            bypass applies to both. City is chosen separately below, so the form
+            does not depend on geocoding here; a typed address is accepted as-is.
           */}
-          {isAdmin || loadError || !isLoaded ? (
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
-              placeholder={placeholder}
-              disabled={disabled}
-              className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                error ? "border-red-500" : "border-gray-300"
-              } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
-            />
-          ) : (
-            <Autocomplete onLoad={(auto) => setAutocomplete(auto)} onPlaceChanged={handlePlaceSelect}>
-              <input
-                type="text"
-                value={inputValue}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
-                placeholder={placeholder}
-                disabled={disabled || isLoading}
-                className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                  error ? "border-red-500" : "border-gray-300"
-                } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
-              />
-            </Autocomplete>
-          )}
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              error ? "border-red-500" : "border-gray-300"
+            } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
+          />
         </div>
       </div>
       {error && <p className={`mt-1 text-sm text-red-500 ${isHorizontal ? "lg:ml-[9rem]" : ""}`}>{error}</p>}
