@@ -1175,7 +1175,7 @@ export function EventForm({
               every platform. Amy 2026-08-05.
             */}
             <p className="mt-2 rounded-md border border-[#c9a34e]/30 bg-[#c9a34e]/5 px-3 py-2 text-[13px] text-[#1a254a]">
-              <span className="font-[600]">Design tip:</span> best as a wide banner around 1200×330 (or larger at the same ratio), so it fills the space without the top and bottom getting cut off. Keep the title, date and logo near the CENTER, since Teams, Slack, and similar chat apps show a square crop of the middle for link previews.
+              <span className="font-[600]">Design tip:</span> best as a wide 21:9 banner, about 1400×600 (or larger at the same ratio), so it fills the space without the top and bottom getting cut off. Keep the title, date and logo near the CENTER, since Teams, Slack, and similar chat apps show a square crop of the middle for link previews.
             </p>
           </div>
 
@@ -1207,11 +1207,27 @@ export function EventForm({
               </div>
             ) : imagePreview ? (
               <div className="space-y-3">
-                <div className="relative">
+                <div
+                  className="relative w-full overflow-hidden rounded-lg bg-white"
+                  style={{ aspectRatio: "21 / 9" }}
+                >
+                  {/*
+                    Mirror the event page exactly: a 21:9 frame with the banner
+                    CONTAINED over a blurred fill (see FlyerMedia on the public
+                    page). Was `object-cover`, which cropped the top and bottom
+                    here so the preview never matched what actually published
+                    (Amy 2026-08-14). Contain means what you see is what ships.
+                  */}
+                  <img
+                    src={imagePreview}
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-xl"
+                  />
                   <img
                     src={imagePreview}
                     alt="Event preview"
-                    className="w-full max-h-64 object-cover rounded-lg"
+                    className="absolute inset-0 h-full w-full object-contain"
                   />
                   <button
                     type="button"
@@ -1266,7 +1282,7 @@ export function EventForm({
                     <p className="mb-2 text-sm text-gray-500">
                       <span className="font-semibold">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-xs text-gray-400">PNG or JPG, wide format (about 1200×330px, or larger at the same ratio)</p>
+                    <p className="text-xs text-gray-400">PNG or JPG, wide 21:9 format (about 1400×600px, or larger at the same ratio)</p>
                   </div>
                   <input
                     type="file"
