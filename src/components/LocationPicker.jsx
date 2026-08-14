@@ -165,34 +165,6 @@ export function LocationPicker({
 
   const isHorizontal = layout === "horizontal";
 
-  // Show loading state
-  if (loadError) {
-    return (
-      <div className="w-full">
-        <div className={`flex w-full ${isHorizontal ? "flex-col lg:flex-row lg:items-center" : "flex-col"}`}>
-          <label className={`text-base font-medium text-[#2D2C3C] ${isHorizontal ? "lg:w-[110px]" : ""}`}>
-            {label} {required && <span className="text-red-500">*</span>}
-          </label>
-          <div className={`flex-1 ${isHorizontal ? "lg:ml-8" : "mt-1"}`}>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
-              placeholder={placeholder}
-              disabled={disabled}
-              className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                error ? "border-red-500" : "border-gray-300"
-              } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
-            />
-            <p className="mt-1 text-sm text-amber-600">Maps unavailable - enter address manually</p>
-          </div>
-        </div>
-        {error && <p className={`mt-1 text-sm text-red-500 ${isHorizontal ? "lg:ml-[9rem]" : ""}`}>{error}</p>}
-      </div>
-    );
-  }
-
   return (
     <div className="w-full">
       <div className={`flex w-full ${isHorizontal ? "flex-col lg:flex-row lg:items-center" : "flex-col"}`}>
@@ -201,50 +173,29 @@ export function LocationPicker({
         </label>
 
         <div className={`flex-1 ${isHorizontal ? "lg:ml-8" : "mt-1"}`}>
-          {isAdmin ? (
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
-              placeholder={placeholder}
-              disabled={disabled}
-              className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                error ? "border-red-500" : "border-gray-300"
-              } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
-            />
-          ) : isLoaded ? (
-            <Autocomplete
-              onLoad={(auto) => setAutocomplete(auto)}
-              onPlaceChanged={handlePlaceSelect}
-            >
-              <input
-                type="text"
-                value={inputValue}
-                onChange={handleInputChange}
-                onBlur={handleInputBlur}
-                placeholder={placeholder}
-                disabled={disabled || isLoading}
-                className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
-                  error ? "border-red-500" : "border-gray-300"
-                } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
-              />
-            </Autocomplete>
-          ) : (
-            <input
-              type="text"
-              value={inputValue}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
-              placeholder="Loading maps..."
-              disabled={true}
-              className="w-full rounded-md border border-gray-300 p-3 text-black shadow-sm bg-gray-100"
-            />
-          )}
+          {/*
+            Plain free-text address input, for everyone (not just admins).
 
-          {isLoading && (
-            <p className="mt-1 text-sm text-gray-500">Detecting timezone...</p>
-          )}
+            The Google Places Autocomplete wrapper enforces "you must pick a
+            suggestion from the dropdown"; once the typed text stops matching a
+            suggestion it locks the field and shows a "!" icon, so an organizer
+            can't finish typing or edit what they entered (Amy 2026-08-14). This
+            is the same bug that was fixed on the admin panel by bypassing Places
+            (isAdmin path). It has now surfaced for regular users too, so the
+            bypass applies to both. City is chosen separately below, so the form
+            does not depend on geocoding here; a typed address is accepted as-is.
+          */}
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={handleInputBlur}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`w-full rounded-md border p-3 text-black shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+              error ? "border-red-500" : "border-gray-300"
+            } ${disabled ? "bg-gray-100 cursor-not-allowed" : ""}`}
+          />
         </div>
       </div>
       {error && <p className={`mt-1 text-sm text-red-500 ${isHorizontal ? "lg:ml-[9rem]" : ""}`}>{error}</p>}
