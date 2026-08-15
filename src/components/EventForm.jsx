@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { EventDateTimeRange } from "./EventDateTimePicker.jsx";
 import { LocationPicker, CityPicker } from "./LocationPicker.jsx";
 import { RichTextEditor } from "./RichTextEditor.jsx";
@@ -196,6 +196,15 @@ export function EventForm({
   const handleEndDateChange = useCallback((date) => {
     updateField("endDateTime", date);
   }, [updateField]);
+
+  // File inputs are triggered via ref.click() rather than a <label> wrapping a
+  // hidden input. Clicking a <label> to activate a display:none child input
+  // silently fails to open the file dialog in Safari (Amy 2026-08-15: "you can
+  // drag and drop, but choosing from files doesn't work"); a programmatic
+  // .click() on the ref is reliable across browsers. sponsorInputRefs is keyed
+  // by slot since sponsors render in a map.
+  const bannerInputRef = useRef(null);
+  const sponsorInputRefs = useRef({});
 
   // Handle image file selection
   const handleImageSelect = useCallback((e) => {
@@ -1270,7 +1279,11 @@ export function EventForm({
               </div>
             ) : (
               <>
-                <label
+                <div
+                  role="button"
+                  tabIndex={isSubmitting ? -1 : 0}
+                  onClick={() => { if (!isSubmitting) bannerInputRef.current?.click(); }}
+                  onKeyDown={(e) => { if (!isSubmitting && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); bannerInputRef.current?.click(); } }}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
@@ -1292,13 +1305,14 @@ export function EventForm({
                     <p className="text-xs text-gray-400">PNG or JPG, wide 21:9 format (about 1400×600px, or larger at the same ratio)</p>
                   </div>
                   <input
+                    ref={bannerInputRef}
                     type="file"
                     accept="image/png,image/jpeg,image/jpg"
                     onChange={handleImageSelect}
                     disabled={isSubmitting}
                     className="hidden"
                   />
-                </label>
+                </div>
                 {companyLogo && (
                   <button
                     type="button"
@@ -1369,7 +1383,11 @@ export function EventForm({
                       </button>
                     </div>
                   ) : (
-                    <label
+                    <div
+                      role="button"
+                      tabIndex={isSubmitting ? -1 : 0}
+                      onClick={() => { if (!isSubmitting) sponsorInputRefs.current[slot]?.click(); }}
+                      onKeyDown={(e) => { if (!isSubmitting && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); sponsorInputRefs.current[slot]?.click(); } }}
                       className={`mt-1 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-5 text-center transition-colors hover:border-[#c9a34e] ${
                         isSubmitting ? "pointer-events-none opacity-60" : ""
                       }`}
@@ -1379,6 +1397,7 @@ export function EventForm({
                       </span>
                       <span className="mt-1 text-xs text-gray-400">PNG or JPG</span>
                       <input
+                        ref={(el) => { sponsorInputRefs.current[slot] = el; }}
                         type="file"
                         accept="image/*"
                         className="hidden"
@@ -1389,7 +1408,7 @@ export function EventForm({
                           e.target.value = "";
                         }}
                       />
-                    </label>
+                    </div>
                   )}
                   {/*
                     Description only offered once a logo is present. A
