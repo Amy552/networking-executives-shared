@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { getTimezoneForLocation, getDefaultTimezone } from "../services/timezoneService.js";
+import { geocodeAddress } from "../services/geocodingService.js";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const LIBRARIES = ["places"];
@@ -182,7 +183,31 @@ export function LocationPicker({
 
           const OK = window.google?.maps?.places?.PlacesServiceStatus?.OK;
           if (status !== OK || !place?.geometry?.location) {
-            emitFreeText(pred.description || "");
+            // Places getDetails failed (e.g. Places API quota/config). Resolve
+            // the chosen suggestion through the Geocoding API instead — a
+            // separate service the submit path already uses — so coordinates and
+            // city/state/zip still fill rather than leaving them blank. Falls
+            // back to plain free text only if geocoding also returns nothing.
+            geocodeAddress(pred.description || "")
+              .then(geo => {
+                if (!geo || geo.lat == null || geo.lng == null) {
+                  emitFreeText(pred.description || "");
+                  return;
+                }
+                const addr = geo.formattedAddress || pred.description || "";
+                const comps = geo.addressComponents || {};
+                isInternalUpdate.current = true;
+                setInputValue(addr);
+                onValidation?.({ isValid: true, error: null });
+                onChange?.({ address: addr, coordinates: { lat: geo.lat, lng: geo.lng }, timezone: null, addressComponents: comps });
+                getTimezoneForLocation(geo.lat, geo.lng)
+                  .then(tz => (tz?.timeZoneAbbr ? tz : getDefaultTimezone()))
+                  .catch(() => getDefaultTimezone())
+                  .then(timezone =>
+                    onChange?.({ address: addr, coordinates: { lat: geo.lat, lng: geo.lng }, timezone, addressComponents: comps }),
+                  );
+              })
+              .catch(() => emitFreeText(pred.description || ""));
             return;
           }
 
