@@ -1344,12 +1344,12 @@ export function EventForm({
             Sponsor Logos
           </h3>
           <p className="text-sm text-gray-600">
-            Optional. Add up to two sponsor logos and they&apos;ll appear on your event page under
+            Optional. Add up to four sponsor logos and they&apos;ll appear on your event page under
             &ldquo;Sponsored By&rdquo;. Each logo can carry an optional 1-2 sentence description below it —
             useful when a sponsor is paying for visibility, not just a logo lineup.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
-            {[0, 1].map((slot) => {
+            {[0, 1, 2, 3].map((slot) => {
               const existing = formData?.sponsorLogos?.[slot];
               const description = formData?.sponsorDescriptions?.[slot] || "";
               return (
