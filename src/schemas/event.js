@@ -96,6 +96,11 @@ export const DEFAULT_EVENT = {
   isAllDay: false,
 
   // Location
+  // venueName MUST be here: normalizeEventData() only keeps keys present in
+  // DEFAULT_EVENT, so without this the "Location Name" field is silently
+  // stripped on both load and save (an event's real venue never shows, and a
+  // save blanks it). Amy 2026-08-17.
+  venueName: "",
   address: "",
   city: "",
   state: "",
