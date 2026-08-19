@@ -42,6 +42,13 @@ export const DEFAULT_EVENT = {
   // Organization (CANONICAL)
   organizationName: "",
   organizationWeblink: "",
+  // Additional host names billed top-line beside the organizer, names only
+  // (no logos, no separate profiles). Rendered as "Hosted by <org>, <a>, and
+  // <b>" in the registration emails. MUST live in DEFAULT_EVENT: normalizeEventData
+  // keeps only keys present here, so an event edited through any form would
+  // otherwise silently drop its co-hosts on save. Amy 2026-08-18 (Gig Talent
+  // billing Nava + Talent Executives on The Edge). Sponsors stay separate.
+  coHosts: [],
 
   // Event Details
   eventName: "",
