@@ -1352,6 +1352,7 @@ export function EventForm({
             {[0, 1, 2, 3].map((slot) => {
               const existing = formData?.sponsorLogos?.[slot];
               const description = formData?.sponsorDescriptions?.[slot] || "";
+              const link = formData?.sponsorLinks?.[slot] || "";
               return (
                 <div key={slot}>
                   <label className="text-base font-medium text-[#2D2C3C]">
@@ -1376,6 +1377,10 @@ export function EventForm({
                           const nextDesc = [...(formData?.sponsorDescriptions || [])];
                           nextDesc[slot] = "";
                           updateField("sponsorDescriptions", nextDesc);
+                          // Clear the parallel website link too, same reasoning.
+                          const nextLink = [...(formData?.sponsorLinks || [])];
+                          nextLink[slot] = "";
+                          updateField("sponsorLinks", nextLink);
                         }}
                         className="ml-auto text-sm font-medium text-red-600 hover:underline"
                       >
@@ -1439,6 +1444,30 @@ export function EventForm({
                       <div className="mt-1 flex justify-end text-[11px] text-gray-500">
                         {description.length}/500
                       </div>
+                    </div>
+                  )}
+                  {/* Optional sponsor website. When set, the sponsor's logo on
+                      the event page becomes a link that opens their site in a
+                      new tab. Only offered once a logo is present. */}
+                  {existing && (
+                    <div className="mt-2">
+                      <label className="text-xs font-medium text-gray-600">
+                        Website <span className="font-normal text-gray-400">(optional)</span>
+                      </label>
+                      <input
+                        type="url"
+                        value={link}
+                        onChange={(e) => {
+                          const next = [...(formData?.sponsorLinks || [])];
+                          next[slot] = e.target.value;
+                          updateField("sponsorLinks", next);
+                        }}
+                        placeholder="https://sponsor.com"
+                        className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-[#c9a34e] focus:outline-none"
+                      />
+                      <p className="mt-1 text-[11px] text-gray-500">
+                        Makes this sponsor&apos;s logo a link to their site.
+                      </p>
                     </div>
                   )}
                 </div>
